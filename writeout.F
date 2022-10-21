@@ -3589,7 +3589,8 @@
 
     IF( imoist.eq.1 .and. numq.gt.1 )THEN
     if(output_q      .eq.1)then
-      if( ptype.eq.50 .or. ptype.eq.51 .or. ptype.eq.52 .or. ptype.eq.53 )then
+      if( ptype.eq.50 .or. ptype.eq.51 .or. ptype.eq.52 .or. ptype.eq.53 .or. ptype.eq.54 .or. ptype.eq.60 .or. &
+          ptype.eq.61 .or. ptype.eq.62 .or. ptype.eq.63)then
         n_out = n_out + 1
         name_output(n_out) = 'p3_vmi'
         desc_output(n_out) = 'P3: mean mass weighted ice fallspeed'
@@ -3614,7 +3615,8 @@
 
     IF( imoist.eq.1 .and. numq.gt.1 )THEN
     if(output_q      .eq.1)then
-      if( ptype.eq.50 .or. ptype.eq.51 .or. ptype.eq.52 .or. ptype.eq.53 )then
+      if( ptype.eq.50 .or. ptype.eq.51 .or. ptype.eq.52 .or. ptype.eq.53 .or. ptype.eq.54 .or. ptype.eq.60 .or. &
+          ptype.eq.61 .or. ptype.eq.62 .or. ptype.eq.63)then
         n_out = n_out + 1
         name_output(n_out) = 'p3_di'
         desc_output(n_out) = 'P3: mean mass weighted ice size'
@@ -3639,7 +3641,8 @@
 
     IF( imoist.eq.1 .and. numq.gt.1 )THEN
     if(output_q      .eq.1)then
-      if( ptype.eq.50 .or. ptype.eq.51 .or. ptype.eq.52 .or. ptype.eq.53 )then
+      if( ptype.eq.50 .or. ptype.eq.51 .or. ptype.eq.52 .or. ptype.eq.53 .or. ptype.eq.54 .or. ptype.eq.60 .or. &
+          ptype.eq.61 .or. ptype.eq.62 .or. ptype.eq.63)then
         n_out = n_out + 1
         name_output(n_out) = 'p3_rhopo'
         desc_output(n_out) = 'P3: mean mass weighted ice density'
@@ -3664,7 +3667,7 @@
 
     IF( imoist.eq.1 .and. numq.gt.1 )THEN
     if(output_q      .eq.1)then
-      if( ptype.eq.52 )then
+      if( ptype.eq.52 .or. ptype.eq.54 .or. ptype.eq.61 .or. ptype.eq. 62 .or. ptype.eq.63)then
         n_out = n_out + 1
         name_output(n_out) = 'p3_vmi2'
         desc_output(n_out) = 'P3: mean mass weighted ice fallspeed, 2nd ice cat.'
@@ -3689,7 +3692,7 @@
 
     IF( imoist.eq.1 .and. numq.gt.1 )THEN
     if(output_q      .eq.1)then
-      if( ptype.eq.52 )then
+      if( ptype.eq.52 .or. ptype.eq.54 .or. ptype.eq.61 .or. ptype.eq.62 .or. ptype.eq.63)then
         n_out = n_out + 1
         name_output(n_out) = 'p3_di2'
         desc_output(n_out) = 'P3: mean mass weighted ice size, 2nd ice cat.'
@@ -3714,7 +3717,7 @@
 
     IF( imoist.eq.1 .and. numq.gt.1 )THEN
     if(output_q      .eq.1)then
-      if( ptype.eq.52 )then
+      if( ptype.eq.52 .or. ptype.eq.54 .or. ptype.eq.61 .or. ptype.eq.62 .or. ptype.eq.63)then
         n_out = n_out + 1
         name_output(n_out) = 'p3_rhopo2'
         desc_output(n_out) = 'P3: mean mass weighted ice density, 2nd ice cat.'
@@ -3734,6 +3737,157 @@
       endif
     endif
     ENDIF
+
+  !.............................................                                                                                                   
+                                                                                                                                                   
+    IF( imoist.eq.1 .and. numq.gt.1 )THEN                                                                                                          
+    if(output_q      .eq.1)then                                                                                                                    
+      if( ptype.eq.62 .or. ptype.eq.63)then                                                                                                       
+        n_out = n_out + 1                                                                                                                          
+        name_output(n_out) = 'p3_vmi3'                                                                                                             
+        desc_output(n_out) = 'P3: mean mass weighted ice fallspeed, 3rd ice cat.'                                                                  
+        unit_output(n_out) = 'm/s'
+        grid_output(n_out) = 's'     ! s=scalar pts (3d) ; u=u pts (3d) ; v=v pts (3d) ; w=w pts (3d) ; 2=2d scalar pts                            
+
+          !$omp parallel do default(shared)  &                                                                                                     
+          !$omp private(i,j,k)                                                                                                                     
+          do k=1,maxk
+          do j=1,nj
+          do i=1,ni
+            dum1(i,j,k) = p3o(i,j,k,7)
+          enddo
+          enddo
+          enddo
+        call   writes(dum1,fnum,srec,nwrite,nloop,dat1,dat2,dat3,reqt,myi1p,myi2p,myj1p,myj2p,ncid,time_index,name_output(n_out),sigma,zs,zh,dum9)
+      endif
+    endif
+    ENDIF
+
+  !.............................................                                                                                                   
+
+    IF( imoist.eq.1 .and. numq.gt.1 )THEN
+    if(output_q      .eq.1)then
+      if( ptype.eq.62 .or. ptype.eq.63)then
+        n_out = n_out + 1
+        name_output(n_out) = 'p3_di3'
+        desc_output(n_out) = 'P3: mean mass weighted ice size, 3rd ice cat.'                                                                       
+        unit_output(n_out) = 'm'                                                                                                                   
+        grid_output(n_out) = 's'     ! s=scalar pts (3d) ; u=u pts (3d) ; v=v pts (3d) ; w=w pts (3d) ; 2=2d scalar pts                            
+                                                                                                                                                   
+          !$omp parallel do default(shared)  &                                                                                                     
+          !$omp private(i,j,k)                                                                                                                     
+          do k=1,maxk                                                                                                                              
+          do j=1,nj                                                                                                                                
+          do i=1,ni                                                                                                                                
+            dum1(i,j,k) = p3o(i,j,k,8)                                                                                                             
+          enddo                                                                                                                                    
+          enddo                                                                                                                                    
+          enddo                                                                                                                                    
+        call   writes(dum1,fnum,srec,nwrite,nloop,dat1,dat2,dat3,reqt,myi1p,myi2p,myj1p,myj2p,ncid,time_index,name_output(n_out),sigma,zs,zh,dum9)
+      endif                                                                                                                                        
+    endif                                                                                                                                          
+    ENDIF
+
+  !.............................................                                                                                                   
+                                                                                                                                                   
+    IF( imoist.eq.1 .and. numq.gt.1 )THEN                                                                                                          
+    if(output_q      .eq.1)then                                                                                                                    
+      if( ptype.eq.62 .or. ptype.eq.63)then                                                                                                       
+        n_out = n_out + 1                                                                                                                          
+        name_output(n_out) = 'p3_rhopo3'                                                                                                           
+        desc_output(n_out) = 'P3: mean mass weighted ice density, 3rd ice cat.'                                                                    
+        unit_output(n_out) = 'kg/m3'
+        grid_output(n_out) = 's'     ! s=scalar pts (3d) ; u=u pts (3d) ; v=v pts (3d) ; w=w pts (3d) ; 2=2d scalar pts                            
+
+          !$omp parallel do default(shared)  &                                                                                                     
+          !$omp private(i,j,k)                                                                                                                     
+          do k=1,maxk
+          do j=1,nj
+          do i=1,ni
+            dum1(i,j,k) = p3o(i,j,k,9)
+          enddo
+          enddo
+          enddo
+        call   writes(dum1,fnum,srec,nwrite,nloop,dat1,dat2,dat3,reqt,myi1p,myi2p,myj1p,myj2p,ncid,time_index,name_output(n_out),sigma,zs,zh,dum9)
+      endif
+    endif
+    ENDIF
+
+  !.............................................
+
+    IF( imoist.eq.1 .and. numq.gt.1 )THEN                                                                                                          
+    if(output_q      .eq.1)then                                                                                                                    
+      if( ptype.eq.63)then                                                                                                         
+        n_out = n_out + 1                                                                                                                          
+        name_output(n_out) = 'p3_vmi4'                                                                                                             
+        desc_output(n_out) = 'P3: mean mass weighted ice fallspeed, 4th ice cat.'                                                                  
+        unit_output(n_out) = 'm/s'                                                                                                                  
+        grid_output(n_out) = 's'     ! s=scalar pts (3d) ; u=u pts (3d) ; v=v pts (3d) ; w=w pts (3d) ; 2=2d scalar pts                            
+                                                                                                                                                    
+          !$omp parallel do default(shared)  &                                                                                                     
+          !$omp private(i,j,k)                                                                                                                     
+          do k=1,maxk                                                                                                                               
+          do j=1,nj                                                                                                                                 
+          do i=1,ni                                                                                                                                 
+            dum1(i,j,k) = p3o(i,j,k,10)                                                                                                              
+          enddo                                                                                                                                     
+          enddo                                                                                                                                     
+          enddo                                                                                                                                     
+        call   writes(dum1,fnum,srec,nwrite,nloop,dat1,dat2,dat3,reqt,myi1p,myi2p,myj1p,myj2p,ncid,time_index,name_output(n_out),sigma,zs,zh,dum9)  
+      endif                                                                                                                                         
+    endif                                                                                                                                           
+    ENDIF                                                                                                                                           
+
+  !.............................................
+
+    IF( imoist.eq.1 .and. numq.gt.1 )THEN                                                                                                           
+    if(output_q      .eq.1)then                                                                                                                     
+      if( ptype.eq.63)then                                                                                                         
+        n_out = n_out + 1                                                                                                                           
+        name_output(n_out) = 'p3_di4'                                                                                                               
+        desc_output(n_out) = 'P3: mean mass weighted ice size, 4th ice cat.'                                                                       
+        unit_output(n_out) = 'm'                                                                                                                   
+        grid_output(n_out) = 's'     ! s=scalar pts (3d) ; u=u pts (3d) ; v=v pts (3d) ; w=w pts (3d) ; 2=2d scalar pts                            
+                                                                                                                                                   
+          !$omp parallel do default(shared)  &                                                                                                     
+          !$omp private(i,j,k)                                                                                                                     
+          do k=1,maxk                                                                                                                              
+          do j=1,nj                                                                                                                                
+          do i=1,ni                                                                                                                                
+            dum1(i,j,k) = p3o(i,j,k,11)                                                                                                             
+          enddo                                                                                                                                    
+          enddo                                                                                                                                    
+          enddo                                                                                                                                    
+        call   writes(dum1,fnum,srec,nwrite,nloop,dat1,dat2,dat3,reqt,myi1p,myi2p,myj1p,myj2p,ncid,time_index,name_output(n_out),sigma,zs,zh,dum9)  
+      endif                                                                                                                                        
+    endif                                                                                                                                          
+    ENDIF
+
+  !.............................................
+
+    IF( imoist.eq.1 .and. numq.gt.1 )THEN                                                                                                          
+    if(output_q      .eq.1)then                                                                                                                    
+      if( ptype.eq.63)then                                                                                                         
+        n_out = n_out + 1                                                                                                                          
+        name_output(n_out) = 'p3_rhopo4'                                                                                                           
+        desc_output(n_out) = 'P3: mean mass weighted ice density, 4th ice cat.'                                                                    
+        unit_output(n_out) = 'kg/m3'                                                                                                                
+        grid_output(n_out) = 's'     ! s=scalar pts (3d) ; u=u pts (3d) ; v=v pts (3d) ; w=w pts (3d) ; 2=2d scalar pts                            
+                                                                                                                                                    
+          !$omp parallel do default(shared)  &                                                                                                     
+          !$omp private(i,j,k)                                                                                                                     
+          do k=1,maxk                                                                                                                               
+          do j=1,nj                                                                                                                                 
+          do i=1,ni                                                                                                                                 
+            dum1(i,j,k) = p3o(i,j,k,12)                                                                                                              
+          enddo                                                                                                                                     
+          enddo                                                                                                                                     
+          enddo                                                                                                                                     
+        call   writes(dum1,fnum,srec,nwrite,nloop,dat1,dat2,dat3,reqt,myi1p,myi2p,myj1p,myj2p,ncid,time_index,name_output(n_out),sigma,zs,zh,dum9)  
+      endif                                                                                                                                         
+    endif                                                                                                                                           
+    ENDIF                                                                                                                                           
+
 
 !  end P3 diagnostics
 !--------------------------------------------------------------------------------

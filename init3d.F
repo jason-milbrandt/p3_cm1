@@ -448,18 +448,22 @@
         if(dowr) write(outfile,*) '  Warm bubble'
         if(dowr) write(outfile,*)
 
-        ric     =  centerx  ! center of bubble in x-direction (m)
-        rjc     =  centery  ! center of bubble in y-direction (m)
-        zc      =   1400.0  ! height of center of bubble above ground (m)
-        bhrad   =  10000.0  ! horizontal radius of bubble (m)
-        bvrad   =   1400.0  ! vertical radius of bubble (m)
-        bptpert =      1.0  ! max potential temp perturbation (K)
+!       ric     =  centerx  ! center of bubble in x-direction (m)
+!       rjc     =  centery  ! center of bubble in y-direction (m)
+!shift location of intial bubble (JM, for WK case):
+        ric     =  -25000.  ! center of bubble in x-direction (m)
+        rjc     =  -25000.  ! center of bubble in y-direction (m)
+
+        zc      =   1600.0  ! height of center of bubble above ground (m)
+        bhrad   =  2000.0  ! horizontal radius of bubble (m)
+        bvrad   =  2000.0  ! vertical radius of bubble (m)
+        bptpert =      3.0  ! max potential temp perturbation (K)
 
         ! By default, CM1 sets qv=constant at a constant height level for 
         ! this value of iinit.  If you would rather have rh=constant at 
         ! a constant height level, then set this to .true.
-        maintain_rh = .false.
-
+!        maintain_rh = .false.
+        maintain_rh = .true.
         do k=1,nk
         do j=1,nj
         do i=1,ni
@@ -1362,11 +1366,11 @@
 
       ELSEIF(iinit.eq.12)THEN
 
-        xc_wnudge     =  centerx                   ! x_c (m), center point of nudging in x
-        xr_wnudge     =  10000.0                   ! x_r (m), radius of nudging in x
+        xc_wnudge     =  centerx+30000.                   ! x_c (m), center point of nudging in x
+        xr_wnudge     =  15000.0                   ! x_r (m), radius of nudging in x
 
         yc_wnudge     =  centery                   ! y_c (m), center point of nudging in y
-        yr_wnudge     =  10000.0                   ! y_r (m), radius of nudging in y
+        yr_wnudge     =  15000.0                   ! y_r (m), radius of nudging in y
 
         zc_wnudge     =   1500.0                   ! z_c (m), center point of nudging in z
         zr_wnudge     =   1500.0                   ! z_r (m), radius of nudging in z
