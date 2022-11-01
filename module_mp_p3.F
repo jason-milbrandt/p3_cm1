@@ -1,4 +1,3 @@
-bg
 !__________________________________________________________________________________________!
 ! This module contains the Predicted Particle Property (P3) bulk microphysics scheme.      !
 !                                                                                          !
