@@ -1,3 +1,4 @@
+bg
 !__________________________________________________________________________________________!
 ! This module contains the Predicted Particle Property (P3) bulk microphysics scheme.      !
 !                                                                                          !
@@ -5909,34 +5910,99 @@ END subroutine p3_init
     multicat:  if (nCat.gt.1) then
 !   multicat:  if (.FALSE.) then       ! **** TEST
 
-       do k = kbot,ktop,kdir
-          do iice = nCat,2,-1
-
-           ! simility condition (similar mean sizes); note, this condition must be the same as below (for 3-moment ice)
-             tmp1 = abs(diag_di(i,k,iice)-diag_di(i,k,iice-1))
-             if (tmp1.le.deltaD_init .and. qitot(i,k,iice)>0. .and. qitot(i,k,iice-1)>0.) then
-                qitot(i,k,iice-1) = qitot(i,k,iice-1) + qitot(i,k,iice)
-                nitot(i,k,iice-1) = nitot(i,k,iice-1) + nitot(i,k,iice)
-                qirim(i,k,iice-1) = qirim(i,k,iice-1) + qirim(i,k,iice)
-                birim(i,k,iice-1) = birim(i,k,iice-1) + birim(i,k,iice)
-                !if (log_predictfliq) then
-                !  qiliq(i,k,iice-1) = qiliq(i,k,iice-1) + qiliq(i,k,iice)
-                !  qiliq(i,k,iice) = 0.
-                !endif
-
-                qitot(i,k,iice) = 0.
-                nitot(i,k,iice) = 0.
-                qirim(i,k,iice) = 0.
-                birim(i,k,iice) = 0.
-             endif
-
-          enddo !iice loop
-       enddo !k loop
+      ! simility condition (similar mean sizes); note, this condition must be consistent
+      ! note: 3momice and liqfrac are done first since merging qitot actually changes
+      !       the results for the similarity test
+      
+      ! *** This section can be optimized to reduce the number of uses of the conditional in inner loop ***
+      ! e.g.:
+!       if (log_3momentIce .and. log_predictfliq) then
+!          [everything]
+!       elseif (log_3momentIce .and. .not.log_predictfliq) then
+!          [everything]
+!       elseif (.not.log_3momentIce .and. log_predictfliq) then
+!          [everything]
+!       else
+!          [everything]
+!       endif
+!
+       ! also, could set up an logical array (ni,nk,nCat-1) for similarity condition 
+       ! log_similar(i,j,iice) = tmp1.le.deltaD_init .and. qitot(i,k,iice)>0. .and. qitot(i,k,iice-1)>0.
+       ! this will reduce code repition; similarity condition only needs to be defined once
+       
+!        log_similar(:,:,:) = .false.
+!        do k = kbot,ktop,kdir
+!           do iice = nCat,2,-1
+!              tmp1 = abs(diag_di(i,k,iice)-diag_di(i,k,iice-1))
+!              log_similar(i,k,iice) = (tmp1.le.deltaD_init .and. qitot(i,k,iice)>0. .and. qitot(i,k,iice-1)>0.)
+!           enddo
+!        enddo
+!        if (log_3momentIce .and. log_predictfliq) then
+!           do k = kbot,ktop,kdir
+!              do iice = nCat,2,-1
+!                 qitot(i,k,iice-1) = qitot(i,k,iice-1) + qitot(i,k,iice)
+!                 nitot(i,k,iice-1) = nitot(i,k,iice-1) + nitot(i,k,iice)
+!                 qirim(i,k,iice-1) = qirim(i,k,iice-1) + qirim(i,k,iice)
+!                 birim(i,k,iice-1) = birim(i,k,iice-1) + birim(i,k,iice)
+!                 zitot(i,k,iice-1) = zitot(i,k,iice-1) + zitot(i,k,iice)
+!                 qiliq(i,k,iice-1) = qiliq(i,k,iice-1) + qiliq(i,k,iice)
+!                 qitot(i,k,iice) = 0.
+!                 nitot(i,k,iice) = 0.
+!                 qirim(i,k,iice) = 0.
+!                 birim(i,k,iice) = 0.
+!                 zitot(i,k,iice) = 0.
+!                 qiliq(i,k,iice) = 0.
+!              enddo
+!           enddo          
+!        elseif (log_3momentIce .and. .not.log_predictfliq) then
+!           do k = kbot,ktop,kdir
+!              do iice = nCat,2,-1
+!                 qitot(i,k,iice-1) = qitot(i,k,iice-1) + qitot(i,k,iice)
+!                 nitot(i,k,iice-1) = nitot(i,k,iice-1) + nitot(i,k,iice)
+!                 qirim(i,k,iice-1) = qirim(i,k,iice-1) + qirim(i,k,iice)
+!                 birim(i,k,iice-1) = birim(i,k,iice-1) + birim(i,k,iice)
+!                 zitot(i,k,iice-1) = zitot(i,k,iice-1) + zitot(i,k,iice)
+!                 qitot(i,k,iice) = 0.
+!                 nitot(i,k,iice) = 0.
+!                 qirim(i,k,iice) = 0.
+!                 birim(i,k,iice) = 0.
+!                 zitot(i,k,iice) = 0.
+!              enddo
+!           enddo          
+!        elseif (.not.log_3momentIce .and. log_predictfliq) then
+!           do k = kbot,ktop,kdir
+!              do iice = nCat,2,-1
+!                 qitot(i,k,iice-1) = qitot(i,k,iice-1) + qitot(i,k,iice)
+!                 nitot(i,k,iice-1) = nitot(i,k,iice-1) + nitot(i,k,iice)
+!                 qirim(i,k,iice-1) = qirim(i,k,iice-1) + qirim(i,k,iice)
+!                 birim(i,k,iice-1) = birim(i,k,iice-1) + birim(i,k,iice)
+!                 qiliq(i,k,iice-1) = qiliq(i,k,iice-1) + qiliq(i,k,iice)
+!                 qitot(i,k,iice) = 0.
+!                 nitot(i,k,iice) = 0.
+!                 qirim(i,k,iice) = 0.
+!                 birim(i,k,iice) = 0.
+!                 qiliq(i,k,iice) = 0.
+!              enddo
+!           enddo          
+!        else
+!           do k = kbot,ktop,kdir
+!              do iice = nCat,2,-1
+!                 qitot(i,k,iice-1) = qitot(i,k,iice-1) + qitot(i,k,iice)
+!                 nitot(i,k,iice-1) = nitot(i,k,iice-1) + nitot(i,k,iice)
+!                 qirim(i,k,iice-1) = qirim(i,k,iice-1) + qirim(i,k,iice)
+!                 birim(i,k,iice-1) = birim(i,k,iice-1) + birim(i,k,iice)
+!                 qitot(i,k,iice) = 0.
+!                 nitot(i,k,iice) = 0.
+!                 qirim(i,k,iice) = 0.
+!                 birim(i,k,iice) = 0. 
+!              enddo
+!           enddo          
+!        endif
+       
 
        if (log_3momentIce) then
           do k = kbot,ktop,kdir
              do iice = nCat,2,-1
-              ! simility condition (similar mean sizes); note, this condition must be the same as above
                 tmp1 = abs(diag_di(i,k,iice)-diag_di(i,k,iice-1))
                 if (tmp1.le.deltaD_init .and. qitot(i,k,iice)>0. .and. qitot(i,k,iice-1)>0.) then
                    zitot(i,k,iice-1) = zitot(i,k,iice-1) + zitot(i,k,iice)
@@ -5958,6 +6024,22 @@ END subroutine p3_init
              enddo
           enddo
        endif
+
+       do k = kbot,ktop,kdir
+          do iice = nCat,2,-1
+             tmp1 = abs(diag_di(i,k,iice)-diag_di(i,k,iice-1))
+             if (tmp1.le.deltaD_init .and. qitot(i,k,iice)>0. .and. qitot(i,k,iice-1)>0.) then
+                qitot(i,k,iice-1) = qitot(i,k,iice-1) + qitot(i,k,iice)
+                nitot(i,k,iice-1) = nitot(i,k,iice-1) + nitot(i,k,iice)
+                qirim(i,k,iice-1) = qirim(i,k,iice-1) + qirim(i,k,iice)
+                birim(i,k,iice-1) = birim(i,k,iice-1) + birim(i,k,iice)
+                qitot(i,k,iice) = 0.
+                nitot(i,k,iice) = 0.
+                qirim(i,k,iice) = 0.
+                birim(i,k,iice) = 0.
+             endif
+          enddo !iice loop
+       enddo !k loop
 
     endif multicat
 
