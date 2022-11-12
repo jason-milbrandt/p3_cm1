@@ -21,8 +21,8 @@
 !    Melissa Cholette (melissa.cholette@ec.gc.ca)                                          !
 !__________________________________________________________________________________________!
 !                                                                                          !
-! Version:       5.1.1.3                                                                   !
-! Last updated:  2022-OCT                                                                  !
+! Version:       5.1.1.3+                                                                  !
+! Last updated:  2022-NOV                                                                  !
 !__________________________________________________________________________________________!
 
  MODULE MICROPHY_P3
@@ -136,11 +136,11 @@
  integer,          intent(out), optional  :: stat               ! return status of subprogram
  logical,          intent(in),  optional  :: abort_on_err       ! abort when an error is encountered [.false.]
  character(len=*), intent(in),  optional  :: model              ! driving model
- logical,       intent(in)            :: dowr
+ logical,          intent(in),  optional  :: dowr
 
 ! Local variables and parameters:
  logical, save                  :: is_init = .false.
- character(len=1024), parameter :: version_p3                    = '5.1.1.3'
+ character(len=1024), parameter :: version_p3                    = '5.1.1.3+'
  character(len=1024), parameter :: version_intended_table_1_2mom = '6.3-2momI'
  character(len=1024), parameter :: version_intended_table_1_3mom = '6.3-3momI'
  character(len=1024), parameter :: version_intended_table_2      = '6.0'
@@ -3417,7 +3417,10 @@ END subroutine p3_init
              qimlt(iice) = max(qimlt(iice),0.)
              ! Make sure it is bounded -- necessary since qimlt is the only unadjusted terms in conserv.
              qimlt(iice) = min(qimlt(iice),(qitot(i,k,iice)-qiliq(i,k,iice))*odt)
-             nimlt(iice) = qrmlt(iice)*(nitot(i,k,iice)/(qitot(i,k,iice)-qiliq(i,k,iice)))
+!            nimlt(iice) = qrmlt(iice)*(nitot(i,k,iice)/(qitot(i,k,iice)-qiliq(i,k,iice)))
+!      nimlt(iice) = (qimlt(iice)-qrmlt(iice))*(nitot(i,k,iice)/(qitot(i,k,iice)-qiliq(i,k,iice)))
+     nimlt(iice) = (qimlt(iice))*(nitot(i,k,iice)/(qitot(i,k,iice)-qiliq(i,k,iice)))
+
           endif
        else
           if (qitot(i,k,iice).ge.qsmall .and. t(i,k).gt.273.15) then
