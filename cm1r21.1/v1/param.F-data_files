@@ -933,14 +933,15 @@
         eqtset = 1
       ENDIF
       !-----
-      IF( (ptype.eq.4.or.ptype.eq.50.or.ptype.eq.51.or.ptype.eq.52.or.ptype.eq.53.or.ptype.eq.54.or.ptype.eq.55) .and. eqtset.eq.2 )THEN
+      IF( (ptype.eq.4.or.ptype.eq.50.or.ptype.eq.51.or.ptype.eq.52.or.ptype.eq.53.or.ptype.eq.54.or.   &
+      ptype.eq.55.or.ptype.eq.60.or.ptype.eq.61 .or. ptype.eq.62 .or. ptype.eq.63) .and. eqtset.eq.2 )THEN
         if(myid.eq.0)then
         print *,'  -------------------------------- '
         print *
         print *,'  ptype      = ',ptype
         print *,'  eqtset     = ',eqtset
         print *
-        print *,'  ptype=4,50,51,52,53,54,55 requires eqtset=1 '
+        print *,'  ptype=4,50,51,52,53,55,60,61,62,63 requires eqtset=1 '
         print *
         print *,'  ... setting eqtset to 1 ... '
         print *
@@ -2293,14 +2294,16 @@
         call stopcm1
       ENDIF
       !-----
-      IF( radopt.eq.2 .and. ( ptype.ne.3  .and. ptype.ne.5  .and. ptype.ne.7  .and. ptype.ne.26 .and. ptype.ne.27 .and.  &
-                              ptype.ne.50 .and. ptype.ne.51 .and. ptype.ne.52 .and. ptype.ne.53 .and. ptype.ne.55 ) )THEN
+      IF( radopt.eq.2 .and. ( ptype.ne.3 .and. ptype.ne.5 .and. ptype.ne.7 .and. ptype.ne.50 .and.  &
+                              ptype.ne.51 .and. ptype.ne.52 .and. ptype.ne.53 .and. &
+                              ptype.ne.55 .and. ptype.ne.60 .and. ptype.ne.61 .and. &
+                              ptype.ne.62 .and. ptype.ne.63 .and. ptype.ne.26 .and. ptype.ne.27) )THEN
         if(myid.eq.0)then
         print *
         print *,'  radopt   = ',radopt
         print *,'  ptype    = ',ptype
         print *
-        print *,'  radopt=2 requires ptype=3,5,7,26,27,50,51,52,53,54,55 (for now) '
+        print *,'  radopt=2 requires ptype=3,5,7,26,27,50,51,52,53,55 (for now) '
         print *
         print *,'   stopping model .... '
         print *
@@ -2723,12 +2726,16 @@
         if( ptype.eq.26 ) param_mp = 'NSSL 2-moment scheme (graupel-only, no hail)'
         if( ptype.eq.27 ) param_mp = 'NSSL 2-moment scheme (graupel and hail)'
         if( ptype.eq.28 ) param_mp = 'NSSL single-moment scheme (graupel-only)'
-        if( ptype.eq.50 ) param_mp = 'P3 (1-mom-cld, 2-mom-rain, 2-mom-ice, 1-ice-category)'
-        if( ptype.eq.51 ) param_mp = 'P3 (2-mom-cld, 2-mom-rain, 3-mom-ice, liq-frac, 1-ice-category)'
-        if( ptype.eq.52 ) param_mp = 'P3 (2-mom-cld, 2-mom-rain, 3-mom-ice, liq-frac, 2-ice-categories)'
-        if( ptype.eq.53 ) param_mp = 'P3 (2-mom-cld, 2-mom-rain, 3-mom-ice, liq-frac, 3-ice-categories)'
-        if( ptype.eq.54 ) param_mp = 'P3 (2-mom-cld, 2-mom-rain, 3-mom-ice, liq-frac, 4-ice-categories)'
+        if( ptype.eq.50 ) param_mp = 'Predicted Particle Property (P3)'
+        if( ptype.eq.51 ) param_mp = 'Predicted Particle Property (P3)'
+        if( ptype.eq.52 ) param_mp = 'Predicted Particle Property (P3)'
+        if( ptype.eq.53 ) param_mp = 'Predicted Particle Property (P3)'
+        if( ptype.eq.54 ) param_mp = 'Predicted Particle Property (P3)'
         if( ptype.eq.55 ) param_mp = 'Jensen_ISHMAEL'
+        if( ptype.eq.60 ) param_mp = 'Predicted Particle Property (P3)'
+        if( ptype.eq.61 ) param_mp = 'Predicted Particle Property (P3)'
+        if( ptype.eq.62 ) param_mp = 'Predicted Particle Property (P3)'
+        if( ptype.eq.63 ) param_mp = 'Predicted Particle Property (P3)'
       endif
       if( idoles )then
         ! LES subgrid:
@@ -4045,7 +4052,8 @@
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !-----------------------------------------------------------------------
 
-        ELSEIF( ptype.eq.50 .or. ptype.eq.51 .or. ptype.eq.52 .or. ptype.eq.53 .or. ptype.eq.54) THEN    ! P3
+        ELSEIF( ptype.eq.50 .or. ptype.eq.51 .or. ptype.eq.52 .or. ptype.eq.53 .or. ptype.eq.54 .or. ptype.eq.60 &
+                .or. ptype.eq.61 .or. ptype.eq.62 .or. ptype.eq.63) THEN    ! P3
 
           !----- initialize the P3 scheme -----
 
@@ -4053,7 +4061,8 @@
           if(dowr) write(outfile,*) 'Calling P3_INIT'
 
           if(     ptype.eq.50 )then
-            call p3_init(lookup_file_dir='./data_files_p3',  &
+!           call p3_init(lookup_file_dir='.',  &
+            call p3_init(lookup_file_dir='./data_files',  &
                          nCat=1,               &
                          trplMomI=.false.,     &
                          liqFrac=.false.,      &
@@ -4062,7 +4071,48 @@
                          abort_on_err=.false., &
                          dowr=dowr)
           elseif( ptype.eq.51 )then
-            call p3_init(lookup_file_dir='./data_files_p3',  &
+!           call p3_init(lookup_file_dir='.',  &
+            call p3_init(lookup_file_dir='./data_files',  &
+                         nCat=1,               &
+                         trplMomI=.false.,     &
+                         liqFrac=.false.,      &
+                         model='WRF',          &
+                         stat=p3stat,          &
+                         abort_on_err=.false., &
+                         dowr=dowr)
+          elseif( ptype.eq.52 )then
+!           call p3_init(lookup_file_dir='.',  &
+            call p3_init(lookup_file_dir='./data_files',  &
+                         nCat=2,               &
+                         trplMomI=.false.,     &
+                         liqFrac=.false.,      &
+                         model='WRF',          &
+                         stat=p3stat,          &
+                         abort_on_err=.false., &
+                         dowr=dowr)
+          elseif( ptype.eq.53 )then
+!           call p3_init(lookup_file_dir='.',  &
+            call p3_init(lookup_file_dir='./data_files',  &
+                         nCat=1,               &
+                         trplMomI=.true.,      &
+                         liqFrac=.false.,      &
+                         model='WRF',          &
+                         stat=p3stat,          &
+                         abort_on_err=.false., &
+                         dowr=dowr)
+          elseif( ptype.eq.54 )then
+!           call p3_init(lookup_file_dir='.',  &
+            call p3_init(lookup_file_dir='./data_files',  &
+                         nCat=2,               &
+                         trplMomI=.true.,      &
+                         liqFrac=.false.,      &
+                         model='WRF',          &
+                         stat=p3stat,          &
+                         abort_on_err=.false., &
+                         dowr=dowr)
+          elseif( ptype.eq.60 )then
+!           call p3_init(lookup_file_dir='.',  &
+            call p3_init(lookup_file_dir='./data_files',  &
                          nCat=1,               &
                          trplMomI=.true.,      &
                          liqFrac=.true.,       &
@@ -4070,8 +4120,9 @@
                          stat=p3stat,          &
                          abort_on_err=.false., &
                          dowr=dowr)
-          elseif( ptype.eq.52 )then
-            call p3_init(lookup_file_dir='./data_files_p3',  &
+          elseif( ptype.eq.61 )then
+!           call p3_init(lookup_file_dir='.',  &
+            call p3_init(lookup_file_dir='./data_files',  &
                          nCat=2,               &
                          trplMomI=.true.,      &
                          liqFrac=.true.,       &
@@ -4079,8 +4130,9 @@
                          stat=p3stat,          &
                          abort_on_err=.false., &
                          dowr=dowr)
-          elseif( ptype.eq.53 )then
-            call p3_init(lookup_file_dir='./data_files_p3',  &
+          elseif( ptype.eq.62 )then
+!           call p3_init(lookup_file_dir='.',  &
+            call p3_init(lookup_file_dir='./data_files',  &
                          nCat=3,               &
                          trplMomI=.true.,      &
                          liqFrac=.true.,       &
@@ -4088,8 +4140,9 @@
                          stat=p3stat,          &
                          abort_on_err=.false., &
                          dowr=dowr)
-          elseif( ptype.eq.54 )then
-            call p3_init(lookup_file_dir='./data_files_p3',  &
+          elseif( ptype.eq.63 )then
+!           call p3_init(lookup_file_dir='.',  &
+            call p3_init(lookup_file_dir='./data_files',  &
                          nCat=4,               &
                          trplMomI=.true.,      &
                          liqFrac=.true.,       &
@@ -4168,8 +4221,288 @@
           np3o =  4
 
       !cccccccccccccccccccccccccccccccccccccccccccccccccccc!
-
         ELSEIF( ptype.eq.51 )THEN
+
+          numq = 9    ! there are 9 q variables
+
+          nqv  = 1    ! qv
+          nql1 = 2    ! the first liquid variable
+          nql2 = 3    ! the last liquid variable
+          nqs1 = 4    ! the first solid variable
+          nqs2 = 4    ! the last solid variable
+
+          cloudvar(1) = .false.
+          cloudvar(2) = .true.
+          cloudvar(3) = .false.
+          cloudvar(4) = .true.
+          cloudvar(5) = .false.
+          cloudvar(6) = .false.
+          cloudvar(7) = .false.
+          cloudvar(8) = .false.
+          cloudvar(9) = .false.
+
+          qname(1) = 'qv '
+          qname(2) = 'qc '
+          qname(3) = 'qr '
+          qname(4) = 'qi1'
+          qname(5) = 'ni1'
+          qname(6) = 'qnr'
+          qname(7) = 'ri1'
+          qname(8) = 'bi1'
+          qname(9) = 'qnc'
+
+          qunit(1) = 'kg/kg'
+          qunit(2) = 'kg/kg'
+          qunit(3) = 'kg/kg'
+          qunit(4) = 'kg/kg'
+          qunit(5) = '#/kg'
+          qunit(6) = '#/kg'
+          qunit(7) = 'kg/kg'
+          qunit(8) = 'm^-3 kg^-1'
+          qunit(9) = '#/kg'
+
+          ! likely maximum value (order-of-magnitude)
+          ! (needed for monotonic advection schemes)
+          qmag(1) = 0.01
+          qmag(2) = 0.01
+          qmag(3) = 0.01
+          qmag(4) = 0.01
+          qmag(5) = 1.0e5
+          qmag(6) = 1.0e5
+          qmag(7) = 0.01
+          qmag(8) = 1.0e-5
+          qmag(9) = 1.0e8
+
+          ! for p3 arrays:
+          np3a = 23            ! 1-mom, no_liqfrac, 1-cat (no extra output)
+          np3a = np3a + nout2d + nout3d + 1  !(1 for dhmax_x)
+          np3o =  4            ! 1 x nCat; for vmi_(x), dmi_(x), rhoi_(x), dhmax_(x)
+
+      !cccccccccccccccccccccccccccccccccccccccccccccccccccc!
+        ELSEIF( ptype.eq.52 )THEN
+
+          numq = 13   ! there are 13 q variables
+
+          nqv  = 1    ! qv
+          nql1 = 2    ! the first liquid variable
+          nql2 = 3    ! the last liquid variable
+          nqs1 = 4    ! the first solid variable
+          nqs2 = 5    ! the last solid variable
+
+          cloudvar( 1) = .false.
+          cloudvar( 2) = .true.
+          cloudvar( 3) = .false.
+          cloudvar( 4) = .true.
+          cloudvar( 5) = .true.
+          cloudvar( 6) = .false.
+          cloudvar( 7) = .false.
+          cloudvar( 8) = .false.
+          cloudvar( 9) = .false.
+          cloudvar(10) = .false.
+          cloudvar(11) = .false.
+          cloudvar(12) = .false.
+          cloudvar(13) = .false.
+
+          qname( 1) = 'qv '
+          qname( 2) = 'qc '
+          qname( 3) = 'qr '
+          qname( 4) = 'qi1'
+          qname( 5) = 'qi2'
+          qname( 6) = 'nc '
+          qname( 7) = 'nr '
+          qname( 8) = 'ni1'
+          qname( 9) = 'ri1'
+          qname(10) = 'bi1'
+          qname(11) = 'ni2'
+          qname(12) = 'ri2'
+          qname(13) = 'bi2'
+
+          qunit( 1) = 'kg/kg'
+          qunit( 2) = 'kg/kg'
+          qunit( 3) = 'kg/kg'
+          qunit( 4) = 'kg/kg'
+          qunit( 5) = 'kg/kg'
+          qunit( 6) = '#/kg'
+          qunit( 7) = '#/kg'
+          qunit( 8) = '#/kg'
+          qunit( 9) = 'kg/kg'
+          qunit(10) = 'm^-3 kg^-1'
+          qunit(11) = '#/kg'
+          qunit(12) = 'kg/kg'
+          qunit(13) = 'm^-3 kg^-1'
+
+          ! likely maximum value (order-of-magnitude)
+          ! (needed for monotonic advection schemes)
+          qmag( 1) = 0.01
+          qmag( 2) = 0.01
+          qmag( 3) = 0.01
+          qmag( 4) = 0.01
+          qmag( 5) = 0.01
+          qmag( 6) = 1.0e5
+          qmag( 7) = 1.0e5
+          qmag( 8) = 1.0e5
+          qmag( 9) = 0.01
+          qmag(10) = 1.0e-5
+          qmag(11) = 1.0e5
+          qmag(12) = 0.01
+          qmag(13) = 1.0e-5
+
+          ! for p3 arrays:
+          np3a = 30            ! 2-mom, no_liqfrac, 2-cat (no extra output)
+          np3a = np3a + nout2d + nout3d + 2  !(2 for dhmax_x)
+          np3o =  8            ! 2 x nCat; for vmi_(x), dmi_(x), rhoi_(x), dhmax_(x)
+
+      !cccccccccccccccccccccccccccccccccccccccccccccccccccc!
+
+        ELSEIF( ptype.eq.53 )THEN
+
+          numq = 10   ! there are 9 q variables
+
+          nqv  = 1    ! qv
+          nql1 = 2    ! the first liquid variable
+          nql2 = 3    ! the last liquid variable
+          nqs1 = 4    ! the first solid variable
+          nqs2 = 4    ! the last solid variable
+
+          cloudvar(1) = .false.
+          cloudvar(2) = .true.
+          cloudvar(3) = .false.
+          cloudvar(4) = .true.
+          cloudvar(5) = .false.
+          cloudvar(6) = .false.
+          cloudvar(7) = .false.
+          cloudvar(8) = .false.
+          cloudvar(9) = .false.
+          cloudvar(10) = .false.
+
+          qname(1)  = 'qv '
+          qname(2)  = 'qc '
+          qname(3)  = 'qr '
+          qname(4)  = 'qi1'
+          qname(5)  = 'ni1'
+          qname(6)  = 'qnr'
+          qname(7)  = 'ri1'
+          qname(8)  = 'bi1'
+          qname(9)  = 'qnc'
+          qname(10) = 'zi1'
+
+          qunit(1) = 'kg/kg'
+          qunit(2) = 'kg/kg'
+          qunit(3) = 'kg/kg'
+          qunit(4) = 'kg/kg'
+          qunit(5) = '#/kg'
+          qunit(6) = '#/kg'
+          qunit(7) = 'kg/kg'
+          qunit(8) = 'm^3 kg^-1'
+          qunit(9) = '#/kg'
+          qunit(10) = 'm(6) kg(-1)'
+
+          ! likely maximum value (order-of-magnitude)
+          ! (needed for monotonic advection schemes)
+          qmag(1) = 0.01
+          qmag(2) = 0.01
+          qmag(3) = 0.01
+          qmag(4) = 0.01
+          qmag(5) = 1.0e5
+          qmag(6) = 1.0e5
+          qmag(7) = 0.01
+          qmag(8) = 1.0e-5
+          qmag(9) = 1.0e8
+          qmag(10) = 1.0e-3
+
+          ! for p3 arrays:
+          np3a = 24            ! 3-mom, no_liqfrac, 1-cat (incl. vmi_1, dmi_1, rhoi_1)
+          np3a = np3a + nout2d + nout3d + 1  !(1 for dhmax_x)
+          np3o =  4            ! 1 x nCat; for vmi_(x), dmi_(x), rhoi_(x), dhmax_(x)
+          np3a = np3a + 7      ! adding 7 additional 3d output fields
+
+      !cccccccccccccccccccccccccccccccccccccccccccccccccccc!
+
+        ELSEIF( ptype.eq.54 )THEN
+
+          numq = 15   ! there are 13 q variables
+
+          nqv  = 1    ! qv
+          nql1 = 2    ! the first liquid variable
+          nql2 = 3    ! the last liquid variable
+          nqs1 = 4    ! the first solid variable
+          nqs2 = 5    ! the last solid variable
+
+          cloudvar( 1) = .false.
+          cloudvar( 2) = .true.
+          cloudvar( 3) = .false.
+          cloudvar( 4) = .true.
+          cloudvar( 5) = .true.
+          cloudvar( 6) = .false.
+          cloudvar( 7) = .false.
+          cloudvar( 8) = .false.
+          cloudvar( 9) = .false.
+          cloudvar(10) = .false.
+          cloudvar(11) = .false.
+          cloudvar(12) = .false.
+          cloudvar(13) = .false.
+          cloudvar(14) = .false.
+          cloudvar(15) = .false.
+
+          qname( 1) = 'qv '
+          qname( 2) = 'qc '
+          qname( 3) = 'qr '
+          qname( 4) = 'qi1'
+          qname( 5) = 'qi2'
+          qname( 6) = 'nc '
+          qname( 7) = 'nr '
+          qname( 8) = 'ni1'
+          qname( 9) = 'ri1'
+          qname(10) = 'bi1'
+          qname(11) = 'ni2'
+          qname(12) = 'ri2'
+          qname(13) = 'bi2'
+          qname(14) = 'zi1'
+          qname(15) = 'zi2'
+
+          qunit( 1) = 'kg/kg'
+          qunit( 2) = 'kg/kg'
+          qunit( 3) = 'kg/kg'
+          qunit( 4) = 'kg/kg'
+          qunit( 5) = 'kg/kg'
+          qunit( 6) = '#/kg'
+          qunit( 7) = '#/kg'
+          qunit( 8) = '#/kg'
+          qunit( 9) = 'kg/kg'
+          qunit(10) = 'm^-3 kg^-1'
+          qunit(11) = '#/kg'
+          qunit(12) = 'kg/kg'
+          qunit(13) = 'm^-3 kg^-1'
+          qunit(14) = 'm^6/kg'
+          qunit(15) = 'm^6/kg'
+
+          ! likely maximum value (order-of-magnitude)
+          ! (needed for monotonic advection schemes)
+          qmag( 1) = 0.01
+          qmag( 2) = 0.01
+          qmag( 3) = 0.01
+          qmag( 4) = 0.01
+          qmag( 5) = 0.01
+          qmag( 6) = 1.0e5
+          qmag( 7) = 1.0e5
+          qmag( 8) = 1.0e5
+          qmag( 9) = 0.01
+          qmag(10) = 1.0e-5
+          qmag(11) = 1.0e5
+          qmag(12) = 0.01
+          qmag(13) = 1.0e-5
+          qmag(14) = 1.0e-3
+          qmag(15) = 1.0e-3
+
+          ! for p3 arrays:
+          np3a = 32            ! 2-mom, no_liqfrac, 2-cat (no extra output)
+          np3a = np3a + nout2d + nout3d + 2  !(2 for dhmax_x)
+          np3o =  8            ! 2 x nCat; for vmi_(x), dmi_(x), rhoi_(x), dhmax_(x)
+
+
+      !cccccccccccccccccccccccccccccccccccccccccccccccccccc!
+
+        ELSEIF( ptype.eq.60 )THEN
 
           numq = 11   ! there are 11 q variables
 
@@ -4237,7 +4570,7 @@
           np3a = np3a + 7      ! adding 7 additional 3d output fields
 
       !cccccccccccccccccccccccccccccccccccccccccccccccccccc!
-        ELSEIF( ptype.eq.52 )THEN
+        ELSEIF( ptype.eq.61 )THEN
 
           numq = 17   ! there are 17 q variables
 
@@ -4328,7 +4661,7 @@
 
       !cccccccccccccccccccccccccccccccccccccccccccccccccccc!
 
-        ELSEIF( ptype.eq.53 )THEN
+        ELSEIF( ptype.eq.62 )THEN
 
           numq = 23   ! there are 17 q variables
 
@@ -4443,7 +4776,7 @@
 
       !cccccccccccccccccccccccccccccccccccccccccccccccccccc!
 
-        ELSEIF( ptype.eq.54 )THEN
+        ELSEIF( ptype.eq.63 )THEN
 
           numq = 29   ! there are 29 q variables
 
@@ -5473,7 +5806,8 @@
       ! array indices for P3 microphysics:
       ! (use these arrays for ISHMAEL diag output, too)
       if( imoist.eq.1 .and. ( ptype.eq.50 .or. ptype.eq.51 .or. ptype.eq.52 .or. &
-                              ptype.eq.53 .or. ptype.eq.54 .or. ptype.eq.55) )then
+                              ptype.eq.53 .or. ptype.eq.54 .or. ptype.eq.55 .or. ptype.eq.60 .or. &
+                              ptype.eq.61 .or. ptype.eq.62 .or. ptype.eq.63) )then
         ibp3 = 1
         iep3 = ni
         jbp3 = 1

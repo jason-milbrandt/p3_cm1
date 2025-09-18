@@ -1,0 +1,14 @@
+These files incluce additional modifications that I (JM) prefer to use
+but will not be included in "formal" mods to CM1r21.1 for new P3 interface
+(i.e. as candidates for r21.2)
+
+cm1.F
+- new values of nout2d and nout3d for diagnostic output
+- nwrite = 0, such that first output file (time 0) starts at cm1out_000000.nc
+
+init3d.F
+- modified location of w-forcing for iinit = 12
+
+param.F
+- includes modified path (./data_files) as input in call to p3_init
+
