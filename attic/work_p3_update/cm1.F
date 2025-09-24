@@ -3,11 +3,11 @@
 
 !-----------------------------------------------------------------------------
 !
-!  CM1 Numerical Model, Release 21.1  (cm1r21.1)
-!  24 March 2024
+!  CM1 Numerical Model, Release 21.0  (cm1r21.0)
+!  20 April 2022
 !  https://www2.mmm.ucar.edu/people/bryan/cm1/
 !
-!  (c)2024 - University Corporation for Atmospheric Research
+!  (c)2022 - University Corporation for Atmospheric Research 
 !
 !-----------------------------------------------------------------------------
 !
@@ -71,7 +71,6 @@
       character(len=60), dimension(maxvars) :: desc_output
       character(len=40), dimension(maxvars) :: name_output,unit_output
       character(len=1),  dimension(maxvars) :: grid_output
-      integer,           dimension(maxvars) :: levs_output
       logical, dimension(maxvars) :: cmpr_output
       character(len=40), dimension(maxvars) :: name_stat,desc_stat,unit_stat
       character(len=40), dimension(maxvars) :: name_prcl,desc_prcl,unit_prcl
@@ -99,9 +98,9 @@
       real, dimension(:,:,:), allocatable :: dum1,dum2,dum3,dum4,dum5,dum6,dum7,dum8,dum9
       real, dimension(:,:), allocatable :: zs,gz,rgz,gzu,rgzu,gzv,rgzv,dzdx,dzdy
       real, dimension(:,:,:), allocatable :: gx,gxu,gy,gyv
-      real, dimension(:,:,:), allocatable :: rain,raincv,sws,svs,sps,srs,sgs,sus,shs
+      real, dimension(:,:,:), allocatable :: rain,sws,svs,sps,srs,sgs,sus,shs
       real, dimension(:,:), allocatable :: tsk,znt,rznt,zntmp,ust,stau,tst,qst,z0t,z0q,thflux,qvflux,  &
-                                           cd,ch,cq,u1,v1,s1,t1,xland,psfc,tlh,f2d,psmth,prate,pratecv,ustt,ut,vt,st,cm0
+                                           cd,ch,cq,u1,v1,s1,t1,xland,psfc,tlh,f2d,psmth,prate,ustt,ut,vt,st,cm0
       real, dimension(:,:), allocatable :: radbcw,radbce
       real, dimension(:,:), allocatable :: radbcs,radbcn
       real, dimension(:,:), allocatable :: dtu,dtu0,dtv,dtv0
@@ -122,13 +121,13 @@
       real, dimension(:,:,:), allocatable :: nm,defv,defh,lenscl,dissten,epst,epsd1,epsd2
       real, dimension(:,:,:), allocatable :: thpten,qvpten,qcpten,qipten,upten,vpten,qnipten,qncpten,qrpten,qspten,qgpten
       real, dimension(:,:,:), allocatable :: xkzh,xkzq,xkzm
-      real, dimension(:,:,:), allocatable :: tsq,qsq,cov,sh3d,sm3d,el_pbl,qc_bl,qi_bl,cldfra_bl,  &
+      real, dimension(:,:,:), allocatable :: tsq,qsq,cov,sh3d,el_pbl,qc_bl,qi_bl,cldfra_bl,  &
                                       qWT,qSHEAR,qBUOY,qDISS,dqke,qke_adv,qke,qke3d,   &
                                       edmf_a,edmf_w,edmf_qt,edmf_thl,edmf_ent,edmf_qc, &
                                       sub_thl3D,sub_sqv3D,det_thl3D,det_sqv3D
       real, dimension(:,:), allocatable :: vdfg,maxmf
       integer, dimension(:,:), allocatable :: nupdraft,ktop_plume
-      real, dimension(:,:,:), allocatable :: swten,lwten,swtenc,lwtenc,thraten,cldfra,o30
+      real, dimension(:,:,:), allocatable :: swten,lwten,swtenc,lwtenc,cldfra,o30
       real, dimension(:,:), allocatable :: zir,radsw,rnflx,radswnet,radlwin,dsr,olr
       real, dimension(:,:,:), allocatable :: rad2d,effc,effi,effs,effr,effg,effis
       real, dimension(:,:), allocatable :: lwupt,lwuptc,lwdnt,lwdntc,lwupb,lwupbc,lwdnb,lwdnbc
@@ -146,17 +145,11 @@
       real, dimension(:,:), allocatable :: charn,msang,scurx,scury,zkmax,cd_out,ch_out,wscale,wscaleu
       real, dimension(:,:), allocatable :: mznt,swspd,smois,taux,tauy,hpbl2d,evap2d,heat2d
 
-      ! cm1r21.1: for cu param
-      real, dimension(:,:,:), allocatable :: thcuten,qvcuten,qccuten,qicuten,ucuten,vcuten,thften,qvften
-
       ! for myj:
       real, dimension(:,:), allocatable :: mixht,akhs,akms,elflx,ct,snow,sice,thz0,qz0,uz0,vz0,u10e,v10e,th10,q10,tshltr,qshltr,pshltr,z0base,zntmyj
       integer, dimension(:,:), allocatable :: lowlyr,ivgtyp
       real, dimension(:,:,:), allocatable :: tke_myj,el_myj
-
-      ! for physics:
-      real, dimension(:,:,:), allocatable :: tmp2d
-      real, dimension(:,:), allocatable :: tmp1d
+      real, dimension(:,:,:), allocatable :: tmp_pbl
 
       real, dimension(:), allocatable :: slab_zs,slab_dzs
       real, dimension(:,:,:), allocatable :: tslb
@@ -171,7 +164,7 @@
 
 !--- arrays for MPI ---
       integer, dimension(:), allocatable :: myi1p,myi2p,myj1p,myj2p
-      integer, dimension(:), allocatable :: reqs_u,reqs_v,reqs_w,reqs_s,reqs_p,reqs_p2,reqs_p3,reqs_x,reqs_y,reqs_z,reqs_tk,reqs_tk2
+      integer, dimension(:), allocatable :: reqs_u,reqs_v,reqs_w,reqs_s,reqs_p,reqs_p2,reqs_p3,reqs_x,reqs_y,reqs_z,reqs_tk
       integer, dimension(:,:),  allocatable :: reqs_q,reqs_t
       real, dimension(:), allocatable :: nw1,nw2,ne1,ne2,sw1,sw2,se1,se2
       real, dimension(:,:,:), allocatable :: n3w1,n3w2,n3e1,n3e2,s3w1,s3w2,s3e1,s3e2
@@ -222,7 +215,6 @@
       ! for output using cylindrical coords:
       integer, dimension(:,:), allocatable :: cir
       real, dimension(:,:), allocatable :: crr,cangle
-      real, dimension(:), allocatable :: crref
 
       ! t2p arrays:
       real, dimension(:), allocatable :: gamk,gamwall,kmw,ufw,vfw,u1b,v1b,l2p,s2p,s2b,t2pm1,t2pm2,t2pm3,t2pm4
@@ -370,7 +362,6 @@
       iusetke = .false.
       do_adapt_move = .false.
       do_recycle = .false.
-      cuparam = 0
 
       dorestart = .false.
       dowriteout = .false.
@@ -392,11 +383,11 @@
       idoles = .false.
       idopbl = .false.
 
-      cm1version = 'cm1r21.1'
-      cm1rversion = 21.1
+      cm1version = 'cm1r21.0'
+      cm1rversion = 21.0
 
 !----------------------------------------------------------------------
-!  For arbitrary 3d output array:
+!  For arbitrary 3d output array:  
 !
 !    nout3d is the total number of output variables.
 !
@@ -404,13 +395,14 @@
 !    fill in the out3d(i,j,k,1) and out3d(i,j,k,2) etc arrays with the
 !    information you wish to write out.)
 !
-!    No other changes are necessary:  output file will contain the
+!    No other changes are necessary:  output file will contain the 
 !    variables "out1", "out2", "out3", ... etc.
 
-      nout3d =   0
+!     nout3d =   3
+      nout3d =   10
 
 !----------------------------------------------------------------------
-!  For arbitrary 2d output array:
+!  For arbitrary 2d output array:  
 !
 !    nout2d is the total number of output variables.
 !
@@ -418,13 +410,12 @@
 !    fill in the out2d(i,j,1) and out3d(i,j,2) etc arrays with the
 !    information you wish to write out.)
 !
-!    No other changes are necessary:  output file will contain the
+!    No other changes are necessary:  output file will contain the 
 !    variables "out2d1", "out2d2", "out2d3", ... etc.
 
-      nout2d =   0
+      nout2d =   2
 
 !----------------------------------------------------------------------
-
 !  Initialize MPI
 
       myid=0
@@ -442,7 +433,7 @@
         print *
         print *,'|---------------------------------------------------------------|'
         print *,'|                                                               |'
-        print *,'|          You are using CM1, Release 21.1 (cm1r21.1)           |'
+        print *,'|          You are using CM1, Release 21.0 (cm1r21.0)           |'
         print *,'|                                                               |'
         print *,'|---------------------------------------------------------------|'
 
@@ -451,6 +442,7 @@
         print *,'|    compiled using distributed-memory parallelization (MPI)    |'
         print *,'|                                                               |'
         print *,'|---------------------------------------------------------------|'
+        print *
 #endif
 
 #ifdef OPENMP
@@ -458,6 +450,7 @@
         print *,'|     compiled using shared-memory parallelization (OpenMP)     |'
         print *,'|                                                               |'
         print *,'|---------------------------------------------------------------|'
+        print *
 #endif
 
         print *
@@ -486,12 +479,6 @@
       ! note:  read remainder of namelist sections in param.F !
 
 !----------------------------------------------------------------------
-
-     !for P3 microphysics scheme:
-      if (ptype.eq.50 .or. ptype.eq.51 .or. ptype.eq.52 .or. ptype.eq.53 .or. ptype.eq.54) then
-         nout2d =   2
-         nout3d =   3
-      endif
 
       IF( procfiles )THEN
 #ifdef MPI
@@ -879,8 +866,6 @@
       psmth = 0.0
       allocate(  prate(ib:ie,jb:je) )
       prate = 0.0
-      allocate(  pratecv(ib:ie,jb:je) )
-      pratecv = 0.0
 
       allocate( gamk(kb:ke) )
       gamk = 1.0
@@ -982,8 +967,6 @@
       reqs_z = 0
       allocate( reqs_tk(rmp) )
       reqs_tk = 0
-      allocate( reqs_tk2(rmp) )
-      reqs_tk2 = 0
 
       allocate( nw1(kmt) )
       nw1 = 0.0
@@ -1491,8 +1474,6 @@
 #endif
       allocate(   rain(ib:ie,jb:je,nrain) )
       rain = 0.0
-      allocate( raincv(ib:ie,jb:je,nrain) )
-      raincv = 0.0
       allocate(    sws(ib:ie,jb:je,nrain) )
       sws = 0.0
       allocate(    svs(ib:ie,jb:je,nrain) )
@@ -1714,11 +1695,11 @@
 #endif
 
       if( cm1setup.eq.3 )then
-        kminit = viscosity
-        khinit = viscosity/pr_num
-      else
         kminit = 0.0
         khinit = 0.0
+      else
+        kminit = viscosity
+        khinit = viscosity/pr_num
       endif
 
       allocate(    kmh(ibc:iec,jbc:jec,kbc:kec) )
@@ -1792,8 +1773,6 @@
       cov = 0.0
       allocate(      sh3d(ibmynn:iemynn,jbmynn:jemynn,kbmynn:kemynn) )
       sh3d = 0.0
-      allocate(      sm3d(ibmynn:iemynn,jbmynn:jemynn,kbmynn:kemynn) )
-      sm3d = 0.0
       allocate(    el_pbl(ibmynn:iemynn,jbmynn:jemynn,kbmynn:kemynn) )
       el_pbl = 0.0
       allocate(     qc_bl(ibmynn:iemynn,jbmynn:jemynn,kbmynn:kemynn) )
@@ -1867,8 +1846,6 @@
       swtenc = 0.0
       allocate( lwtenc(ibr:ier,jbr:jer,kbr:ker) )
       lwtenc = 0.0
-      allocate( thraten(ibr:ier,jbr:jer,kbr:ker) )
-      thraten = 0.0
       allocate(cldfra(ibr:ier,jbr:jer,kbr:ker) )
       cldfra = 0.0
       allocate(   o30(ibr:ier,jbr:jer,kbr:ker) )
@@ -1905,17 +1882,17 @@
       rad2d = 0.0
 
       allocate(  effc(ibr:ier,jbr:jer,kbr:ker) )
-      effc = 25.0e-6
+      effc = 25.0
       allocate(  effi(ibr:ier,jbr:jer,kbr:ker) )
-      effi = 25.0e-6
+      effi = 25.0
       allocate(  effs(ibr:ier,jbr:jer,kbr:ker) )
-      effs = 25.0e-6
+      effs = 25.0
       allocate(  effr(ibr:ier,jbr:jer,kbr:ker) )
-      effr = 25.0e-6
+      effr = 25.0
       allocate(  effg(ibr:ier,jbr:jer,kbr:ker) )
-      effg = 25.0e-6
+      effg = 25.0
       allocate( effis(ibr:ier,jbr:jer,kbr:ker) )
-      effis = 25.0e-6
+      effis = 25.0
 
       allocate( lwupt(ibr:ier,jbr:jer) )
       lwupt = 0.0
@@ -2189,10 +2166,8 @@
       allocate(  el_myj(ibmyj:iemyj,jbmyj:jemyj,kbmyj:kemyj) )
       el_myj = 0.0
 
-      allocate( tmp2d(ibtmp:ietmp,kbtmp:ketmp,ntmp2d) )
-      tmp2d = 0.0
-      allocate( tmp1d(ibtmp:ietmp,ntmp1d) )
-      tmp1d = 0.0
+      allocate( tmp_pbl(ibpbl:iepbl,kbpbl:kepbl,npbl) )
+      tmp_pbl = 0.0
 
       ! start with very small, but non-zero, numbers:
       tem = 1.0e-6
@@ -2366,24 +2341,6 @@
       allocate( cangle(ib:ie,jb:je) )
       cangle = 0.0
 
-      ! cm1r21.1: for cu param
-      allocate( thcuten(ibcu:iecu,jbcu:jecu,kbcu:kecu) )
-      thcuten = 0.0
-      allocate( qvcuten(ibcu:iecu,jbcu:jecu,kbcu:kecu) )
-      qvcuten = 0.0
-      allocate( qccuten(ibcu:iecu,jbcu:jecu,kbcu:kecu) )
-      qccuten = 0.0
-      allocate( qicuten(ibcu:iecu,jbcu:jecu,kbcu:kecu) )
-      qicuten = 0.0
-      allocate(  ucuten(ibcu:iecu,jbcu:jecu,kbcu:kecu) )
-      ucuten = 0.0
-      allocate(  vcuten(ibcu:iecu,jbcu:jecu,kbcu:kecu) )
-      vcuten = 0.0
-      allocate(  thften(ibcu:iecu,jbcu:jecu,kbcu:kecu) )
-      thften = 0.0
-      allocate(  qvften(ibcu:iecu,jbcu:jecu,kbcu:kecu) )
-      qvften = 0.0
-
 #ifdef MPI
           call MPI_BARRIER (MPI_COMM_WORLD,ierr)
 #endif
@@ -2536,6 +2493,9 @@
       xcenter = minx + 0.5*(maxx-minx)
       ycenter = miny + 0.5*(maxy-miny)
 
+      if( axisymm.eq.0 .and. doazimavg .or. do_adapt_move )  &
+      call       getrangle(xh,yh,xcenter,ycenter,cir,crr,cangle)
+
       IF( doazimavg )THEN
 
         ! check that ddr is positive and non-zero
@@ -2553,12 +2513,7 @@
           call stopcm1
         endif
 
-        i = 1
-        do while( xhref(nx/2+i).lt.rlen .and. i.lt.nx/2 )
-          i = i+1
-        enddo
-
-        icrs = i
+        icrs = nint( rlen / ddr )
 
         ! check that icrs is greater than
         if( icrs.le.0 )then
@@ -2577,19 +2532,9 @@
         ! initial values for cyclone center
         ! (assumed center of domain)
         if( myid.eq.0 ) print *
-        if( myid.eq.0 ) print *,'  ddr,rlen,icrs,maxr = ',ddr,rlen,icrs,xhref(nx/2+icrs)
+        if( myid.eq.0 ) print *,'  ddr,rlen,icrs = ',ddr,rlen,icrs
         if( myid.eq.0 ) print *
       ENDIF
-
-      allocate( crref(icrs) )
-      crref = 0.0
-
-      do i=1,icrs
-        crref(i) = xhref(nx/2+i)
-      enddo
-
-      if( axisymm.eq.0 .and. doazimavg .or. do_adapt_move )  &
-      call       getrangle(xh,yh,xcenter,ycenter,cir,crr,cangle,icrs,crref,xhref,xfref)
 
 !----------------------------------------------------------------------
 !  Eddy recycling:
@@ -2681,14 +2626,13 @@
                               qbudget,asq,bsq,qname,                               &
                               xfref,xhref,yfref,yhref,xh,xf,yh,yf,zh,zf,sigma,sigmaf,zs, &
                               th0,prs0,pi0,rho0,qv0,u0,v0,                         &
-                              rain,raincv,sws,svs,sps,srs,sgs,sus,shs,             &
+                              rain,sws,svs,sps,srs,sgs,sus,shs,                    &
                               tsk,znt,ust,cd,ch,cq,u1,v1,s1,t1,thflux,qvflux,      &
                               prate,ustt,ut,vt,st,                                 &
                               radbcw,radbce,radbcs,radbcn,                         &
                               rho,prs,ua,uten,va,vten,wa,ppi,tha,qa,tkea,          &
-                              swten,lwten,thraten,radsw,rnflx,radswnet,radlwin,rad2d,      &
+                              swten,lwten,radsw,rnflx,radswnet,radlwin,rad2d,      &
                               effc,effi,effs,effr,effg,effis,                      &
-                              thcuten,qvcuten,qccuten,qicuten,ucuten,vcuten,       &
                               lu_index,kpbl2d,psfc,u10,v10,s10,hfx,qfx,xland,      &
                               hpbl,wspd,psim,psih,gz1oz0,br,                       &
                               CHS,CHS2,CQS2,CPMM,ZOL,MAVAIL,                       &
@@ -2698,7 +2642,7 @@
                               tmn,tml,t0ml,hml,h0ml,huml,hvml,tmoml,               &
                               qpten,qtten,qvten,qcten,pta,pdata,ploc,ppx,          &
                               tdiag,qdiag,phi1,phi2,                               &
-                   tsq,qsq,cov,sh3d,sm3d,el_pbl,qc_bl,qi_bl,cldfra_bl,       &
+                   tsq,qsq,cov,sh3d,el_pbl,qc_bl,qi_bl,cldfra_bl,            &
                    qWT,qSHEAR,qBUOY,qDISS,dqke,qke_adv,qke,qke3d,            &
                    edmf_a,edmf_w,edmf_qt,edmf_thl,edmf_ent,edmf_qc,          &
                    sub_thl3D,sub_sqv3D,det_thl3D,det_sqv3D,                  &
@@ -2715,7 +2659,7 @@
         if(dowr) write(outfile,*) '  restart_read time = ',time_misc
         if(dowr) write(outfile,*)
         !  In case user wants to change values on a restart:
-        IF( restart_reset_frqtim )THEN
+        IF( restart_reset_frqtim )THEN 
           if( statfrq.gt.1.0e-6 ) stattim = mtime + statfrq
           if(  tapfrq.gt.1.0e-6 ) taptim  = mtime + tapfrq
           if(  rstfrq.gt.1.0e-6 ) rsttim  = mtime + rstfrq
@@ -2898,8 +2842,7 @@
                         tha,th3d,qa,q3d,cme,csm,ce1,ce2,                        &
                         tkea,tke3d,kmh,kmv,khh,khv,nm,defv,defh,lenscl,dissten, &
                         t11,t12,t13,t22,t23,t33,flag  ,                         &
-                        pta,pt3d,pdata,bndy,kbdy,timavg,                        &
-                        upten,vpten,ucuten,vcuten,                              &
+                        pta,pt3d,pdata,bndy,kbdy,                               &
                         reqs_u,reqs_v,reqs_w,reqs_s,reqs_p,reqs_tk,             &
                         nw1,nw2,ne1,ne2,sw1,sw2,se1,se2,                        &
                         pw1,pw2,pe1,pe2,ps1,ps2,pn1,pn2,                        &
@@ -2932,7 +2875,7 @@
 
         call   read_lsnudge(lsnudge_u,lsnudge_v,lsnudge_th,lsnudge_qv,sngl(mtime),zh)
 
-        ! 190407:  moved this from lsnudge_module
+        ! 190407:  moved this from lsnudge_module 
 !!!        lsnudge_tau    =  var1   ! time scale (seconds) for damping
 !!!        lsnudge_start  =  var2   ! time (seconds) to begin large-scale nudging
 !!!        lsnudge_end    =  var3   ! time (seconds) to end large-scale nudging
@@ -3021,7 +2964,7 @@
 
           adtlast  = dbldt
 
-          ! adaptive dt if starting CM1 for first time
+          ! adaptive dt if starting CM1 for first time 
           ! (ie, not a restart)
 
           call calccflquick(dt,uh,vh,mh,u3d,v3d,w3d,reqc)
@@ -3142,20 +3085,9 @@
         dowriteout = .true.
         taptim = mtime
 
-        ! 220831: do not increment nwrite for interp-on-restart
-        nwrite = nwrite-1
-
         if( doazimavg )then
           doazimwrite = .true.
           azimavgtim = mtime
-        endif
-        if( dodomaindiag )then
-          dotdwrite = .true.
-          diagtim = mtime
-        endif
-        if( dohifrq )then
-          dohifrqwrite = .true.
-          hifrqtim = mtime
         endif
 
         if(myid.eq.0) print *
@@ -3327,7 +3259,7 @@
                    wprof,ufrc,vfrc,thfrc,qvfrc,ug,vg,dvdr,           &
                    uavg,vavg,thavg,pavg,ulspg,vlspg,qavg,cavg,       &
                    pi0,rho0,prs0,thv0,th0,rth0,qv0,qc0,              &
-                   qi0,rr0,rf0,rrf0,thrd,                            &
+                   qi0,rr0,rf0,rrf0,                                 &
                    zs,gz,rgz,gzu,rgzu,gzv,rgzv,dzdx,dzdy,gx,gxu,gy,gyv, &
                    znt,zntmp,ust,thflux,qvflux,cm0,                  &
                    radbcw,radbce,radbcs,radbcn,                      &
@@ -3344,8 +3276,7 @@
                    kmh,kmv,khh,khv,tkea,tke3d,tketen,                &
                    nm,defv,defh,lenscl,dissten,epst,epsd1,epsd2,     &
                    thpten,qvpten,qcpten,qipten,upten,vpten,qnipten,qncpten,o30,zir,  &
-                   swten,lwten,thraten,                              &
-                   thcuten,qvcuten,qccuten,qicuten,ucuten,vcuten,    &
+                   swten,lwten,                                      &
                    pta,pt3d,ptten,                                   &
                    gamk,gamwall,kmw,ufw,vfw,u1b,v1b,u2pt,v2pt,ufwk,vfwk, &
                    tdiag,qdiag,udiag,vdiag,wdiag,kdiag,pdiag,        &
@@ -3369,7 +3300,7 @@
                    dumk1,dumk2,dumk3,dumk4,rds,sigma,rdsf,sigmaf,    &
                    zh,mh,rmh,c1,c2,zf,mf,rmf,wprof,                  &
                    pi0,rho0,prs0,thv0,th0,rth0,qv0,qc0,              &
-                   qi0,rr0,rf0,rrf0,                                 &
+                   qi0,rr0,rf0,rrf0,thrd,                            &
                    zs,gz,rgz,gzu,rgzu,gzv,rgzv,dzdx,dzdy,gx,gxu,gy,gyv,f2d,cm0, &
                    radbcw,radbce,radbcs,radbcn,dtu,dtu0,dtv,dtv0,    &
                    dum1,dum2,dum3,dum4,dum5,dum6,dum7,dum8,dum9,     &
@@ -3382,10 +3313,10 @@
                    tha,th3d,thten,thten1,thterm,                     &
                    qpten,qtten,qvten,qcten,qa,q3d,qten,              &
                    tkea,tke3d,tketen,qke_adv,qke,qke3d,              &
-                   pta,pt3d,ptten,thften,qvften,                     &
+                   pta,pt3d,ptten,                                   &
                    cfb,cfa,cfc, d1, d2,pdt,lgbth,lgbph,rhs,trans,flag, &
                    reqs_u,reqs_v,reqs_w,reqs_s,reqs_p,reqs_p2,reqs_p3, &
-                   reqs_x,reqs_y,reqs_z,reqs_tk,reqs_tk2,reqs_q,reqs_t, &
+                   reqs_x,reqs_y,reqs_z,reqs_tk,reqs_q,reqs_t,       &
                    nw1,nw2,ne1,ne2,sw1,sw2,se1,se2,                  &
                    ww1,ww2,we1,we2,ws1,ws2,wn1,wn2,                  &
                    pw1,pw2,pe1,pe2,ps1,ps2,pn1,pn2,                  &
@@ -3426,7 +3357,7 @@
                          w3d,ppi,pp3d,ppten,sten,tha,th3d,thten,qa,q3d,qten,   &
                          p3a,p3o,dum2d1,dum2d2,dum2d3,dum2d4,dum2d5,  &
                          effc,effi,effs,effr,effg,effis,    &
-                         tdiag,qdiag,out2d,out3d,tmp2d,tmp1d,  &
+                         tdiag,qdiag,out2d,out3d,  &
                          dowriteout,dorad,dotdwrite,doazimwrite,dorestart,  &
                          getdbz,getvt,dotbud,doqbud)
       endif
@@ -3445,7 +3376,7 @@
                    pi0,rho0,prs0,thv0,th0,rth0,qv0,qc0,              &
                    qi0,rr0,rf0,rrf0,                                 &
                    zs,gz,rgz,gzu,rgzu,gzv,rgzv,dzdx,dzdy,            &
-                   rain,raincv,sws,svs,sps,srs,sgs,sus,shs,          &
+                   rain,sws,svs,sps,srs,sgs,sus,shs,                 &
                    dum1,dum2,dum3,dum4,dum5,dum6,dum7,dum8,          &
                    divx,rho,rr,rf,prs,                               &
                    u0,rru,ua,u3d,uten,uten1,                         &
@@ -3560,8 +3491,6 @@
             print *,'    ntot,rtot = ',ntot,rtot
           endif
 
-          k2 = min ( keta , ke2pt )
-
           ! 3d vars:
           do n = 1 , ntavr
             if(     n.eq.utav )then
@@ -3571,9 +3500,9 @@
             elseif( n.eq.wtav )then
               call tavg_plus1(rdenom,tavg(ibta,jbta,1,1,n),timavg(ibta,jbta,1,n),w3d(ib,jb,1),0,0,1,1,keta,dbldt)
             elseif( n.eq.uutav )then
-              call tavg_plus1(rdenom,tavg(ibta,jbta,1,1,n),timavg(ibta,jbta,1,n),u2pt(ib2pt,jb2pt,1),0,0,0,1,k2,dbldt)
+              call tavg_plus1(rdenom,tavg(ibta,jbta,1,1,n),timavg(ibta,jbta,1,n),u2pt(ib2pt,jb2pt,1),0,0,0,1,keta,dbldt)
             elseif( n.eq.vvtav )then
-              call tavg_plus1(rdenom,tavg(ibta,jbta,1,1,n),timavg(ibta,jbta,1,n),v2pt(ib2pt,jb2pt,1),0,0,0,1,k2,dbldt)
+              call tavg_plus1(rdenom,tavg(ibta,jbta,1,1,n),timavg(ibta,jbta,1,n),v2pt(ib2pt,jb2pt,1),0,0,0,1,keta,dbldt)
             elseif( n.eq.ttav )then
               call tavg_plus1(rdenom,tavg(ibta,jbta,1,1,n),timavg(ibta,jbta,1,n),th3d(ib,jb,1),0,0,0,1,keta,dbldt)
             elseif( n.eq.etav )then
@@ -3653,10 +3582,10 @@
           if( .not. restarted )then
             if(myid.eq.0) print *,'  finding TC center, mtime = ',mtime
             call getpsmth(xh,yh,sigma,pp3d,dum1,xfref,yfref,icenter,jcenter,xcenter,ycenter,psmth)
-            call getpcent(xh,yh,xfref,yfref,dum1,icenter,jcenter,xcenter,ycenter,psmth)
+            call getpcent(xh,yh,dum1,icenter,jcenter,xcenter,ycenter)
           endif
 
-          call   getrangle(xh,yh,xcenter,ycenter,cir,crr,cangle,icrs,crref,xhref,xfref)
+          call   getrangle(xh,yh,xcenter,ycenter,cir,crr,cangle)
 
         endif
         ENDIF
@@ -3698,14 +3627,14 @@
       IF( radopt.ge.1 .and. dorad )THEN
 
         call     radiation_driver(mtime,radtim,dt,rbufsz,xh,yh,xf,yf,zf,rmh,c1,c2,     &
-                   swten,lwten,swtenc,lwtenc,cldfra,o30,thraten,                       &
+                   swten,lwten,swtenc,lwtenc,cldfra,o30,                               &
                    radsw,rnflx,radswnet,radlwin,dsr,olr,rad2d,                         &
                    effc,effi,effs,effr,effg,effis,                                     &
                    lwupt,lwuptc,lwdnt,lwdntc,lwupb,lwupbc,lwdnb,lwdnbc,                &
                    swupt,swuptc,swdnt,swdntc,swupb,swupbc,swdnb,swdnbc,                &
                    lwcf,swcf,coszr,                                                    &
                    xice,xsnow,xlat,xlong,coszen,swddir,swddni,swddif,hrang,            &
-                   cldfra1_flag,dum1,dum2,dum3,dum4,dum5,dum6,dum7,dum8,dum9,sten ,thten, &
+                   cldfra1_flag,dum1,dum2,dum3,dum4,dum5,dum6,dum7,dum8,dum9,sten ,    &
                    prs0,pi0,th0,prs,ppi,tha,rho,qa,                                    &
                    rth0s,prs0s,rho0s,tsk,albd,glw,gsw,emiss,xland,nstep,               &
                    qc_bl,qi_bl,cldfra_bl)
@@ -3762,13 +3691,12 @@
                    nm,defv,defh,lenscl,dissten,epst,epsd1,epsd2,radsw,radswnet,radlwin, &
                    thpten,qvpten,qcpten,qipten,upten,vpten,qnipten,qncpten,qrpten,qspten,qgpten, &
                    xkzh,xkzq,xkzm,                                   &
-                   tsq,qsq,cov,sh3d,sm3d,el_pbl,qc_bl,qi_bl,cldfra_bl,       &
+                   tsq,qsq,cov,sh3d,el_pbl,qc_bl,qi_bl,cldfra_bl,            &
                    qWT,qSHEAR,qBUOY,qDISS,dqke,qke_adv,qke,qke3d,            &
                    edmf_a,edmf_w,edmf_qt,edmf_thl,edmf_ent,edmf_qc,          &
                    sub_thl3D,sub_sqv3D,det_thl3D,det_sqv3D,                  &
                    vdfg,maxmf,nupdraft,ktop_plume,                           &
-                   lwten,swten,thraten,tdiag,raincv,pratecv,                 &
-                   thcuten,qvcuten,qccuten,qicuten,ucuten,vcuten,thften,qvften, &
+                   lwten,swten,tdiag,                                &
                    lu_index,kpbl2d,psfc,u10,v10,s10,hfx,qfx,         &
                    xland,znt,rznt,ust,stau,tst,qst,z0t,z0q,          &
                    hpbl,wspd,phim,phih,psim,psih,psiq,gz1oz0,br,brcr, &
@@ -3778,7 +3706,7 @@
                    gsw,glw,chklowq,capg,snowc,snowh,qcg,dsxy,wstar,delta,prkpp,fm,fh,  &
                    charn,msang,scurx,scury,zkmax,cd_out,ch_out,wscale,wscaleu, &
                    zntmp,mznt,swspd,smois,taux,tauy,hpbl2d,evap2d,heat2d,  &
-                   mixht,akhs,akms,ct,snow,sice,thz0,qz0,uz0,vz0,u10e,v10e,th10,q10,tshltr,qshltr,pshltr,z0base,zntmyj,lowlyr,ivgtyp,tke_myj,el_myj,tmp2d,tmp1d,  &
+                   mixht,akhs,akms,ct,snow,sice,thz0,qz0,uz0,vz0,u10e,v10e,th10,q10,tshltr,qshltr,pshltr,z0base,zntmyj,lowlyr,ivgtyp,tke_myj,el_myj,tmp_pbl,  &
                    num_soil_layers,slab_zs,slab_dzs,tslb,tmn,        &
                    tml,t0ml,hml,h0ml,huml,hvml,tmoml,                &
                    cavg,uavg,vavg,savg,gamk,gamwall,kmw,ufw,vfw,u1b,v1b,l2p,s2p,s2b,t2pm1,t2pm2,t2pm3,t2pm4,u2pt,v2pt,kmwk,ufwk,vfwk, &
@@ -3791,7 +3719,7 @@
                    sw31,sw32,se31,se32,ss31,ss32,sn31,sn32,          &
                    kw1,kw2,ke1,ke2,ks1,ks2,kn1,kn2,reqk,             &
                    flag  ,out2d,out3d,rtime,update_sfc,dotbud,dotdwrite,restarted,  &
-                   dowriteout,doazimwrite,dostat)
+                   dowriteout,doazimwrite)
         ! end_sfc_and_turb
 
 
@@ -3949,11 +3877,11 @@
           ENDIF
           call          writeout(frec,urec,vrec,wrec,mrec,rtime,dt,fnum,nwrite,qname,qunit,    &
                         nstep,mtime,adt,ndt,domainlocx,domainlocy,                             &
-                        name_output,desc_output,unit_output,grid_output,levs_output,cmpr_output, &
+                        name_output,desc_output,unit_output,grid_output,cmpr_output,           &
                         xh,xf,uf,yh,yf,vf,xfref,yfref,                                         &
                         rds,sigma,rdsf,sigmaf,zh,zf,mf,gx,gy,wprof,                            &
                         pi0,prs0,rho0,rr0,rf0,rrf0,th0,qv0,u0,v0,thv0,rth0,qc0,qi0,            &
-                        zs,rgzu,rgzv,rain,raincv,sws,svs,sps,srs,sgs,sus,shs,thflux,qvflux,psfc,      &
+                        zs,rgzu,rgzv,rain,sws,svs,sps,srs,sgs,sus,shs,thflux,qvflux,psfc,      &
                         rxh,arh1,arh2,uh,ruh,rxf,arf1,arf2,vh,rvh,mh,rmh,rmf,rr,rf,            &
                         gz,rgz,gzu,gzv,gxu,gyv,dzdx,dzdy,c1,c2,                                &
                         cd,ch,cq,tlh,f2d,psmth,prate,ustt,cm0,                                 &
@@ -3963,7 +3891,7 @@
                         sadv,thten,nm,defv,defh,lenscl,dissten,epst,epsd1,epsd2,               &
                         thpten,qvpten,qcpten,qipten,upten,vpten,qnipten,qncpten,xkzh,xkzq,xkzm, &
                         lu_index,xland,mavail,tsk,tmn,tml,hml,huml,hvml,hfx,qfx,gsw,glw,tslb,  &
-                        q3d,p3a,p3o,kmh,kmv,khh,khv,cme,tke3d,swten,lwten,cldfra,o30,          &
+                        q3d,p3a,p3o,kmh,kmv,khh,khv,cme,tke3d,swten,lwten,cldfra,              &
                         radsw,rnflx,radswnet,radlwin,dsr,olr,pta,                              &
                         effc,effi,effs,effr,effg,effis,                                        &
                         lwupt,lwdnt,lwupb,lwdnb,                                               &
@@ -3971,15 +3899,14 @@
                         num_soil_layers,u10,v10,s10,t2,q2,znt,ust,stau,tst,qst,z0t,z0q,u1,v1,s1,     &
                         hpbl,zol,mol,rmol,br,brcr,wscale,wscaleu,phim,phih,psim,psih,psiq,wspd,qsfc,wstar,delta,prkpp,fm,fh, &
                         mznt,taux,tauy,                                                        &
-                        z0base,thz0,qz0,uz0,vz0,u10e,v10e,tke_myj,el_myj,                      &
-                        tsq,qsq,cov,sh3d,sm3d,el_pbl,qc_bl,qi_bl,cldfra_bl,                    &
+                        z0base,thz0,qz0,uz0,vz0,u10e,v10e,tke_myj,el_myj,  &
+                        tsq,qsq,cov,sh3d,el_pbl,qc_bl,qi_bl,cldfra_bl,                         &
                         qWT,qSHEAR,qBUOY,qDISS,dqke,qke_adv,qke,                               &
                         edmf_a,edmf_w,edmf_qt,edmf_thl,edmf_ent,edmf_qc,                       &
                         vdfg,maxmf,nupdraft,ktop_plume,                                        &
                         dat1,dat2,dat3,reqt,thten1(ib,jb,1),dumk1,dumk2,                       &
                         tdiag,qdiag,udiag,vdiag,wdiag,pdiag,out2d,out3d,cir,crr,cangle,        &
                         bndy,kbdy,hflxw,hflxe,hflxs,hflxn,recy_cap,recy_inj,timavg,sfctimavg,kmwk, &
-                        thcuten,qvcuten,qccuten,qicuten,ucuten,vcuten,                         &
                         nw1,nw2,ne1,ne2,sw1,sw2,se1,se2,myi1p,myi2p,myj1p,myj2p)
                         ! end_writeout
           if(n.eq.1)then
@@ -4077,7 +4004,7 @@
                    zs,gz,rgz,gzu,rgzu,gzv,rgzv,dzdx,dzdy,gx,gxu,gy,gyv,        &
                    tsk,znt,ust,stau,tst,qst,z0t,z0q,thflux,qvflux,             &
                    cd,ch,cq,u1,v1,s1,xland,psfc,tlh,prate,ustt,ut,vt,st,       &
-                   dum1,dum2,dum3,dum4,dum5,dum6,dum7,dum8,dum9,               &
+                   dum1,dum2,dum3,dum4,dum5,dum6,dum7,dum8,                    &
                    divx,rho,rr,rf,prs,t11,t12,t13,t22,t23,t33,                 &
                    m11,m12,m13,m22,m23,m33,                                    &
                    rru,u3d,uten,uten1,                                         &
@@ -4086,7 +4013,7 @@
                    pp3d,sadv,ppten ,sten,th3d,thten,thten1,thterm,phi2,        &
                    q3d,qten,kmh,kmv,khh,khv,cme,csm,ce1,ce2,tkea,tke3d,tketen, &
                    nm,defv,defh,lenscl,dissten,epst,epsd1,epsd2,pt3d,          &
-                   rain,raincv,hfx,qfx,u10,v10,s10,t2,q2,th2,mznt,             &
+                   rain,hfx,qfx,u10,v10,s10,t2,q2,th2,mznt,                    &
                    hpbl,wspd,zol,mol,rmol,br,brcr,phim,phih,psim,psih,         &
                    thpten,qvpten,qcpten,qipten,upten,vpten,qnipten,qncpten,xkzh,xkzq,xkzm, &
                    qsfc,o30,zir,swten,lwten,swtenc,lwtenc,cldfra,              &
@@ -4094,7 +4021,7 @@
                    lwupt,lwuptc,lwdnt,lwdntc,lwupb,lwupbc,lwdnb,lwdnbc,        &
                    swupt,swuptc,swdnt,swdntc,swupb,swupbc,swdnb,swdnbc,        &
                    lwcf,swcf,                                                  &
-                   tsq,qsq,cov,sh3d,sm3d,el_pbl,qc_bl,qi_bl,cldfra_bl,         &
+                   tsq,qsq,cov,sh3d,el_pbl,qc_bl,qi_bl,cldfra_bl,              &
                    qWT,qSHEAR,qBUOY,qDISS,dqke,qke_adv,qke,                    &
                    edmf_a,edmf_w,edmf_qt,edmf_thl,edmf_ent,edmf_qc,            &
                    vdfg,maxmf,nupdraft,ktop_plume,                             &
@@ -4104,7 +4031,6 @@
                    gamk,gamwall,kmw,ufw,vfw,u1b,v1b,l2p,s2p,s2b,t2pm1,t2pm2,t2pm3,t2pm4,kmwk,ufwk,vfwk, &
                    lsnudge_u,lsnudge_v,lsnudge_th,lsnudge_qv,                  &
                    domainlocx,domainlocy,                                      &
-                   thcuten,qvcuten,qccuten,qicuten,ucuten,vcuten,              &
                    sw31,sw32,se31,se32,ss31,ss32,sn31,sn32,flag)
         ! end_domaindiag
         nwritet = nwritet+1
@@ -4153,8 +4079,8 @@
                    q3d,qten,kmh,kmv,khh,khv,tkea,tke3d,tketen,                 &
                    nm,defv,defh,dissten,                                       &
                    thpten,qvpten,qcpten,qipten,upten,vpten,xkzh,xkzq,xkzm,     &
-                   rain,raincv,u10,v10,s10,br,brcr,hpbl,t2,q2,hfx,qfx,prate,cm0, &
-                   swten,lwten,cldfra,qke,                                     &
+                   rain,u10,v10,s10,br,brcr,hpbl,t2,q2,hfx,qfx,prate,cm0,      &
+                   swten,lwten,cldfra,                                         &
                    lwupt,lwuptc,lwdnt,lwdntc,lwupb,lwupbc,lwdnb,lwdnbc,        &
                    swupt,swuptc,swdnt,swdntc,swupb,swupbc,swdnb,swdnbc,        &
                    lwcf,swcf,wprof,dumk1,dumk2,                                &
@@ -4201,7 +4127,7 @@
                    icrs,icenter,jcenter,xcenter,ycenter,domainlocx,domainlocy, &
                    xh,rxh,arh1,arh2,uh,ruh,xf,rxf,arf1,arf2,uf,ruf,            &
                    yh,vh,rvh,yf,vf,rvf,                                        &
-                   xfref,yfref,xhref,yhref,rds,sigma,rdsf,sigmaf,              &
+                   xfref,yfref,rds,sigma,rdsf,sigmaf,                          &
                    tauh,taus,zh,mh,rmh,c1,c2,tauf,zf,mf,rmf,                   &
                    rho0s,pi0s,prs0s,rth0s,                                     &
                    pi0,rho0,prs0,thv0,th0,rth0,qv0,qc0,u0,v0,                  &
@@ -4217,14 +4143,13 @@
                    q3d,qten,kmh,kmv,khh,khv,cme,csm,ce1,ce2,tkea,tke3d,tketen, &
                    nm,defv,defh,lenscl,dissten,                                &
                    thpten,qvpten,qcpten,qipten,upten,vpten,xkzh,xkzq,xkzm,     &
-                   rain,raincv,u10,v10,s10,br,brcr,hpbl,prate,                 &
+                   rain,u10,v10,s10,br,brcr,hpbl,prate,                        &
                    swten,lwten,cldfra,qke,qke_adv,el_pbl,edmf_a,               &
                    tdiag,qdiag,udiag,vdiag,wdiag,pdiag,out2d,out3d,getdbz,getvt, &
                    effc,effi,effs,effr,effg,effis,                             &
                    lwupt,lwdnt,lwupb,lwdnb,                                    &
                    swupt,swdnt,swupb,swdnb,lwcf,swcf,coszen,                   &
-                   cir,crr,cangle,crref,kmwk,                                  &
-                   thcuten,qvcuten,qccuten,qicuten,ucuten,vcuten,              &
+                   cir,crr,cangle,kmwk,                                        &
                    dat1(1,1),dat2(1,1),dat3(1,1,1),                            &
                    sw31,sw32,se31,se32,ss31,ss32,sn31,sn32,flag)
         ! end_azimavg
@@ -4270,14 +4195,13 @@
                                qbudget,asq,bsq,qname,                               &
                                xfref,xhref,yfref,yhref,xh,xf,yh,yf,zh,zf,sigma,sigmaf,zs, &
                                th0,prs0,pi0,rho0,qv0,u0,v0,                         &
-                               rain,raincv,sws,svs,sps,srs,sgs,sus,shs,             &
+                               rain,sws,svs,sps,srs,sgs,sus,shs,                    &
                                tsk,znt,ust,cd,ch,cq,u1,v1,s1,t1,thflux,qvflux,      &
                                prate,ustt,ut,vt,st,                                 &
                                radbcw,radbce,radbcs,radbcn,                         &
                                rho,prs,ua,uten,va,vten,wa,ppi,tha,qa,tkea,          &
-                               swten,lwten,thraten,radsw,rnflx,radswnet,radlwin,rad2d,      &
+                               swten,lwten,radsw,rnflx,radswnet,radlwin,rad2d,      &
                                effc,effi,effs,effr,effg,effis,                      &
-                               thcuten,qvcuten,qccuten,qicuten,ucuten,vcuten,       &
                                lu_index,kpbl2d,psfc,u10,v10,s10,hfx,qfx,xland,      &
                                hpbl,wspd,psim,psih,gz1oz0,br,                       &
                                CHS,CHS2,CQS2,CPMM,ZOL,MAVAIL,                       &
@@ -4287,7 +4211,7 @@
                                tmn,tml,t0ml,hml,h0ml,huml,hvml,tmoml,               &
                                qpten,qtten,qvten,qcten,pta,pdata,ploc,ppx,          &
                                tdiag,qdiag,phi1,phi2,                               &
-                   tsq,qsq,cov,sh3d,sm3d,el_pbl,qc_bl,qi_bl,cldfra_bl,       &
+                   tsq,qsq,cov,sh3d,el_pbl,qc_bl,qi_bl,cldfra_bl,            &
                    qWT,qSHEAR,qBUOY,qDISS,dqke,qke_adv,qke,qke3d,            &
                    edmf_a,edmf_w,edmf_qt,edmf_thl,edmf_ent,edmf_qc,          &
                    sub_thl3D,sub_sqv3D,det_thl3D,det_sqv3D,                  &
@@ -4330,7 +4254,7 @@
                     time_write+time_restart+time_ttend+time_cor+time_fall+  &
                     time_satadj+time_dbz+time_sfcphys+time_parcels+         &
                     time_rad+time_pbl+time_swath+time_pdef+time_prsrho+     &
-                    time_diag+time_azimavg+time_hifrq+time_ercyl+time_tavg+time_cuprm+ &
+                    time_diag+time_azimavg+time_hifrq+time_ercyl+time_tavg+ &
 #ifdef MPI
                     time_mpu1+time_mpv1+time_mpw1+time_mpp1+                &
                     time_mpu2+time_mpv2+time_mpw2+time_mpp2+                &
@@ -4542,9 +4466,6 @@
         call MPI_REDUCE(time_tavg  ,sum,1,MPI_REAL,MPI_SUM,0,MPI_COMM_WORLD,ierr)
         time_tavg = sum/float(numprocs)
         sum = 0.0
-        call MPI_REDUCE(time_cuprm ,sum,1,MPI_REAL,MPI_SUM,0,MPI_COMM_WORLD,ierr)
-        time_cuprm = sum/float(numprocs)
-        sum = 0.0
         call MPI_REDUCE(time_parcels ,sum,1,MPI_REAL,MPI_SUM,0,MPI_COMM_WORLD,ierr)
         time_parcels = sum/float(numprocs)
         sum = 0.0
@@ -4607,7 +4528,7 @@
                   time_write+time_restart+time_ttend+time_cor+time_fall+  &
                   time_satadj+time_dbz+time_sfcphys+time_parcels+         &
                   time_rad+time_pbl+time_swath+time_pdef+time_prsrho+     &
-                  time_diag+time_azimavg+time_hifrq+time_ercyl+time_tavg+time_cuprm+ &
+                  time_diag+time_azimavg+time_hifrq+time_ercyl+time_tavg+ &
 #ifdef MPI
                   time_mpu1+time_mpv1+time_mpw1+time_mpp1+                &
                   time_mpu2+time_mpv2+time_mpw2+time_mpp2+                &
@@ -4672,8 +4593,6 @@
       write(outfile,100) 'recycle ',time_ercyl,time_ercyl/time_solve
       if( dotimeavg )  &
       write(outfile,100) 'timeavg ',time_tavg,time_tavg/time_solve
-      if( cuparam.ge.1 )  &
-      write(outfile,100) 'cuparam ',time_cuprm,time_cuprm/time_solve
 #ifdef MPI
       write(outfile,100) 'mp_total',mp_total,mp_total/time_solve
       write(outfile,*)
