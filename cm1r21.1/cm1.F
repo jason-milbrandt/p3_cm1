@@ -489,8 +489,9 @@
 
      !for P3 microphysics scheme:
       if (ptype.eq.50 .or. ptype.eq.51 .or. ptype.eq.52 .or. ptype.eq.53 .or. ptype.eq.54) then
-         nout2d =   2
-         nout3d =   3
+         nout2d = 2
+         nout3d = 3
+         nwrite = 0  ! to start numbering of individual output files at 0 
       endif
 
       IF( procfiles )THEN

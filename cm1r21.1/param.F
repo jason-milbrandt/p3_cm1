@@ -13,8 +13,8 @@
                        yh,vh,rvh,yf,vf,rvf,xfref,xhref,yfref,yhref,     &
                        rds,sigma,rdsf,sigmaf,tauh,taus,                 &
                        zh,mh,rmh,cc1,cc2,tauf,zf,mf,rmf,f2d,dtu0,dtv0,  &
-                       gamk,gamwall,                                    &
-                       zs,gz,rgz,gzu,rgzu,gzv,rgzv,dzdx,dzdy,gx,gxu,gy,gyv,  &
+                       gamk,gamwall,zs,gz,rgz,                          &
+                       gzu,rgzu,gzv,rgzv,dzdx,dzdy,gx,gxu,gy,gyv,       &
                        reqs_u,reqs_v,reqs_s,reqs_p,                     &
                        nw1,nw2,ne1,ne2,sw1,sw2,se1,se2,                 &
                        n3w1,n3w2,n3e1,n3e2,s3w1,s3w2,s3e1,s3e2,         &
@@ -118,6 +118,9 @@
       character(len=40) :: errmsg
       integer :: errflg
       real(kind=kind_phys) :: pi_phys
+
+      character(len=60), parameter :: p3_LUTdir = './data_files_p3'
+
 
 #ifdef MPI
       integer :: ntmp1,ntmp2,ntmp3,ntmp4,reqs,reqs1,reqs2,reqs3,reqs4
@@ -4053,7 +4056,7 @@
           if(dowr) write(outfile,*) 'Calling P3_INIT'
 
           if(     ptype.eq.50 )then
-            call p3_init(lookup_file_dir='./data_files_p3',  &
+            call p3_init(lookup_file_dir=p3_LUTdir,  &
                          nCat=1,               &
                          trplMomI=.false.,     &
                          liqFrac=.false.,      &
@@ -4062,7 +4065,7 @@
                          abort_on_err=.false., &
                          dowr=dowr)
           elseif( ptype.eq.51 )then
-            call p3_init(lookup_file_dir='./data_files_p3',  &
+            call p3_init(lookup_file_dir=p3_LUTdir,  &
                          nCat=1,               &
                          trplMomI=.true.,      &
                          liqFrac=.true.,       &
@@ -4071,7 +4074,7 @@
                          abort_on_err=.false., &
                          dowr=dowr)
           elseif( ptype.eq.52 )then
-            call p3_init(lookup_file_dir='./data_files_p3',  &
+            call p3_init(lookup_file_dir=p3_LUTdir,  &
                          nCat=2,               &
                          trplMomI=.true.,      &
                          liqFrac=.true.,       &
@@ -4080,7 +4083,7 @@
                          abort_on_err=.false., &
                          dowr=dowr)
           elseif( ptype.eq.53 )then
-            call p3_init(lookup_file_dir='./data_files_p3',  &
+            call p3_init(lookup_file_dir=p3_LUTdir,  &
                          nCat=3,               &
                          trplMomI=.true.,      &
                          liqFrac=.true.,       &
@@ -4089,7 +4092,7 @@
                          abort_on_err=.false., &
                          dowr=dowr)
           elseif( ptype.eq.54 )then
-            call p3_init(lookup_file_dir='./data_files_p3',  &
+            call p3_init(lookup_file_dir=p3_LUTdir,  &
                          nCat=4,               &
                          trplMomI=.true.,      &
                          liqFrac=.true.,       &
@@ -4163,7 +4166,8 @@
           qmag(8) = 1.0e-5
 
           ! for p3 arrays:
-          np3a = 22
+!         np3a = 22
+          np3a = 23
           np3a = np3a + nout2d + nout3d
           np3o =  4
 

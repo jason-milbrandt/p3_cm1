@@ -984,10 +984,10 @@
 
         rdt = 1.0/dt
 
-! !         do i=1,ni
-! !            p3a(i,1,22) = 0.0
-! !         enddo
-        p3a(:,1,22) = 0.
+        do i=1,ni
+           p3a(i,1,22) = 0.0
+        enddo
+!         p3a(:,1,22) = 0.
 
         p3_jloop: do j=1,nj
 
@@ -1364,14 +1364,14 @@
 
           ! user-specified diagnostic output
               do i=1,ni
-                 out2d(i,j,1) = p3a(i,1,47)
-                 out2d(i,j,2) = p3a(i,1,48)
+                 out2d(i,j,1) = p3a(i,1,37)
+                 out2d(i,j,2) = p3a(i,1,38)
               enddo
               do k=1,nk
               do i=1,ni
-                 out3d(i,j,k,1) = p3a(i,k,49)
-                 out3d(i,j,k,2) = p3a(i,k,50)
-                 out3d(i,j,k,3) = p3a(i,k,51)
+                 out3d(i,j,k,1) = p3a(i,k,39)
+                 out3d(i,j,k,2) = p3a(i,k,40)
+                 out3d(i,j,k,3) = p3a(i,k,41)
               enddo
               enddo
 
