@@ -1014,7 +1014,7 @@
               enddo
               enddo
 
-              call mp_p3_wrapper_wrf( th     = p3a(:,:,1,1),                 &
+              call mp_p3_wrapper_wrf( th     = p3a(:,:,1,1),                   &
                                qv            = p3a(:,:,1,2),                   &
                                qc            = p3a(:,:,1,3),                   &
                                qr            = p3a(:,:,1,4),                   &
@@ -1025,15 +1025,15 @@
                                p             = p3a(:,:,1,9),                   &
                                dz            = p3a(:,:,1,10),                  &
                                w             = p3a(:,:,1,11),                  &
-                               dt            = dt,                           &
-                               itimestep     = nstep,                        &
-                               rainncv       = dum1(:,:,2),                  &
-                               sr            = dum1(:,:,3),                  &
-                               snownc        = dum1(:,:,4),                  &
-                               snowncv       = dum1(:,:,5),                  &
-                               ids=1, ide=ni, jds=1, jde=1, kds=1, kde=nk ,  &
-                               ims=1, ime=ni, jms=1, jme=1, kms=1, kme=nk ,  &
-                               its=1, ite=ni, jts=1, jte=1, kts=1, kte=nk ,  &
+                               dt            = dt,                             &
+                               itimestep     = nstep,                          &
+                               rainncv       = dum1(:,:,2),                    &
+                               sr            = dum1(:,:,3),                    &
+                               snownc        = dum1(:,:,4),                    &
+                               snowncv       = dum1(:,:,5),                    &
+                               ids=1, ide=ni, jds=1, jde=1, kds=1, kde=nk ,    &
+                               ims=1, ime=ni, jms=1, jme=1, kms=1, kme=nk ,    &
+                               its=1, ite=ni, jts=1, jte=1, kts=1, kte=nk ,    &
                                diag_zdbz     = p3a(:,:,1,12),                  &
                                diag_effc     = p3a(:,:,1,13),                  &
                                diag_effi_ave = p3a(:,:,1,14),                  &
@@ -1047,8 +1047,8 @@
                                qib_1         = p3a(:,:,1,21),                  &
                                rainnc        = p3a(:,1,1,22),                  &
                                diag_dhmax_1  = p3a(:,:,1,23),                  &
-                               diag2d_01     = p3a(:,:,1,24),                  &
-                               diag2d_02     = p3a(:,:,1,25),                  &
+                               diag2d_01     = p3a(:,1,1,24),                  &
+                               diag2d_02     = p3a(:,1,1,25),                  &
                                diag3d_01     = p3a(:,:,1,26),                  &
                                diag3d_02     = p3a(:,:,1,27),                  &
                                diag3d_03     = p3a(:,:,1,28) )
@@ -1062,14 +1062,14 @@
                     pp3d(i,j,k)=pp3d(i,j,k)-pi0(i,j,k)
                     th3d(i,j,k)=th3d(i,j,k)+(p3a(i,k,1,1)-thten(i,j,k))
                  endif
-                 q3d(i,j,k,nqv) = p3a(i,k,1, 2)   ! qv
-                 q3d(i,j,k,nqc) = p3a(i,k,1, 3)   ! qc
-                 q3d(i,j,k,nqr) = p3a(i,k,1, 4)   ! qr
-                 q3d(i,j,k, 6 ) = p3a(i,k,1, 5)   ! qnr
-                 q3d(i,j,k,nqi) = p3a(i,k,1,18)   ! qit_1
-                 q3d(i,j,k, 5 ) = p3a(i,k,1,19)   ! qni_1
-                 q3d(i,j,k, 7 ) = p3a(i,k,1,20)   ! qir_1
-                 q3d(i,j,k, 8 ) = p3a(i,k,1,21)   ! qib_1
+                 q3d(i,j,k,nqv)   = p3a(i,k,1, 2)   ! qv
+                 q3d(i,j,k,nqc)   = p3a(i,k,1, 3)   ! qc
+                 q3d(i,j,k,nqr)   = p3a(i,k,1, 4)   ! qr
+                 q3d(i,j,k,nnr )  = p3a(i,k,1, 5)   ! qnr
+                 q3d(i,j,k,nqi)   = p3a(i,k,1,18)   ! qit_1
+                 q3d(i,j,k,nni1 ) = p3a(i,k,1,19)   ! ni_1
+                 q3d(i,j,k,nqir1) = p3a(i,k,1,20)   ! qir_1
+                 q3d(i,j,k,nbi1)  = p3a(i,k,1,21)   ! qib_1
               enddo
               enddo
 
@@ -1089,8 +1089,8 @@
                  out2d(i,j,1) = p3a(i,1,1,24)
                  out2d(i,j,2) = p3a(i,1,1,25)
               enddo
-!               out2d(:,j,1) = p3a(:,1,1,24)
-!               out2d(:,j,2) = p3a(:,1,1,25)
+!             out2d(:,j,1) = p3a(:,1,1,24)
+!             out2d(:,j,2) = p3a(:,1,1,25)
 
               do k=1,nk
               do i=1,ni
@@ -1099,6 +1099,9 @@
                  out3d(i,j,k,3) = p3a(i,k,1,28)
               enddo
               enddo
+!             out3d(:,j,:,1) = p3a(:,:,1,26)
+!             out3d(:,j,:,2) = p3a(:,:,1,27)
+!             out3d(:,j,:,3) = p3a(:,:,1,28)
 
 
 !            elseif (ptype.eq.51) then

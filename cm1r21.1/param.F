@@ -4173,7 +4173,7 @@
           qmag(8) = 1.0e-5
 
           ! for p3 arrays:
-          np3a = 22 + nout2d + nout3d
+          np3a = 23 + nout2d + nout3d
           np3o =  4     ! 1 x nCat; for vmi_(x), dmi_(x), rhoi_(x), dhmax_(x)
 
       !cccccccccccccccccccccccccccccccccccccccccccccccccccc!
