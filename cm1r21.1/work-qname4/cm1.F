@@ -65,7 +65,7 @@
       logical :: dosfcflx
       logical, dimension(maxq) :: cloudvar,rhovar
       real, dimension(maxq) :: qmag
-      character(len=3), dimension(maxq) :: qname
+      character(len=4), dimension(maxq) :: qname
       character(len=20), dimension(maxq) :: qunit
       character(len=6), dimension(maxq) :: budname
       character(len=60), dimension(maxvars) :: desc_output
@@ -115,7 +115,7 @@
       real, dimension(:,:,:), allocatable :: tha,th3d,thten,thten1,thterm
       real, dimension(:,:,:), allocatable :: qpten,qtten,qvten,qcten
       real, dimension(:,:,:,:), allocatable :: qa,q3d,qten
-      real, dimension(:,:,:,:), allocatable :: p3a
+      real, dimension(:,:,:), allocatable :: p3a
       real, dimension(:,:,:,:), allocatable :: p3o
       real, dimension(:,:,:), allocatable :: kmh,kmv,khh,khv,cme,csm,ce1,ce2
       real, dimension(:,:,:), allocatable :: tkea,tke3d,tketen
@@ -1701,7 +1701,7 @@
       allocate(   qten(ibm:iem,jbm:jem,kbm:kem,numq) )
       qten = 0.0
 
-      allocate( p3a(ibp3:iep3,kbp3:kep3,1,np3a) )
+      allocate( p3a(ibp3:iep3,kbp3:kep3,np3a) )
       p3a = 0.0
       allocate( p3o(ibp3:iep3,jbp3:jep3,kbp3:kep3,np3o) )
       p3o = 0.0

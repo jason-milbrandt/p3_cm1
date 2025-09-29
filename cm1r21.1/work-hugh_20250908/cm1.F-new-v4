@@ -7,7 +7,7 @@
 !  24 March 2024
 !  https://www2.mmm.ucar.edu/people/bryan/cm1/
 !
-!  (c)2024 - University Corporation for Atmospheric Research
+!  (c)2024 - University Corporation for Atmospheric Research 
 !
 !-----------------------------------------------------------------------------
 !
@@ -396,7 +396,7 @@
       cm1rversion = 21.1
 
 !----------------------------------------------------------------------
-!  For arbitrary 3d output array:
+!  For arbitrary 3d output array:  
 !
 !    nout3d is the total number of output variables.
 !
@@ -404,13 +404,13 @@
 !    fill in the out3d(i,j,k,1) and out3d(i,j,k,2) etc arrays with the
 !    information you wish to write out.)
 !
-!    No other changes are necessary:  output file will contain the
+!    No other changes are necessary:  output file will contain the 
 !    variables "out1", "out2", "out3", ... etc.
 
       nout3d =   0
 
 !----------------------------------------------------------------------
-!  For arbitrary 2d output array:
+!  For arbitrary 2d output array:  
 !
 !    nout2d is the total number of output variables.
 !
@@ -418,13 +418,12 @@
 !    fill in the out2d(i,j,1) and out3d(i,j,2) etc arrays with the
 !    information you wish to write out.)
 !
-!    No other changes are necessary:  output file will contain the
+!    No other changes are necessary:  output file will contain the 
 !    variables "out2d1", "out2d2", "out2d3", ... etc.
 
       nout2d =   0
 
 !----------------------------------------------------------------------
-
 !  Initialize MPI
 
       myid=0
@@ -486,13 +485,6 @@
       ! note:  read remainder of namelist sections in param.F !
 
 !----------------------------------------------------------------------
-
-     !for P3 microphysics scheme:
-      if (ptype.eq.50 .or. ptype.eq.51 .or. ptype.eq.52 .or. ptype.eq.53 .or. ptype.eq.54) then
-         nout2d = 2
-         nout3d = 3
-         nwrite = 0  ! to start numbering of individual output files at 0 
-      endif
 
       IF( procfiles )THEN
 #ifdef MPI
@@ -2716,7 +2708,7 @@
         if(dowr) write(outfile,*) '  restart_read time = ',time_misc
         if(dowr) write(outfile,*)
         !  In case user wants to change values on a restart:
-        IF( restart_reset_frqtim )THEN
+        IF( restart_reset_frqtim )THEN 
           if( statfrq.gt.1.0e-6 ) stattim = mtime + statfrq
           if(  tapfrq.gt.1.0e-6 ) taptim  = mtime + tapfrq
           if(  rstfrq.gt.1.0e-6 ) rsttim  = mtime + rstfrq
@@ -2933,7 +2925,7 @@
 
         call   read_lsnudge(lsnudge_u,lsnudge_v,lsnudge_th,lsnudge_qv,sngl(mtime),zh)
 
-        ! 190407:  moved this from lsnudge_module
+        ! 190407:  moved this from lsnudge_module 
 !!!        lsnudge_tau    =  var1   ! time scale (seconds) for damping
 !!!        lsnudge_start  =  var2   ! time (seconds) to begin large-scale nudging
 !!!        lsnudge_end    =  var3   ! time (seconds) to end large-scale nudging
@@ -3022,7 +3014,7 @@
 
           adtlast  = dbldt
 
-          ! adaptive dt if starting CM1 for first time
+          ! adaptive dt if starting CM1 for first time 
           ! (ie, not a restart)
 
           call calccflquick(dt,uh,vh,mh,u3d,v3d,w3d,reqc)

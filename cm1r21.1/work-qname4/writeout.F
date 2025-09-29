@@ -79,7 +79,7 @@
       integer, intent(inout) :: srec,urec,vrec,wrec,mrec
       real, intent(in) :: rtime,dt
       integer, intent(in) :: fnum,nwrite
-      character(len=3), dimension(maxq), intent(in) :: qname
+      character(len=4), dimension(maxq), intent(in) :: qname
       character(len=20), intent(in), dimension(maxq) :: qunit
       integer, intent(in) :: nstep,ndt
       double precision, intent(in) :: mtime,adt,domainlocx,domainlocy
@@ -136,7 +136,7 @@
       real, dimension(ibl:iel,jbl:jel), intent(in) :: mavail,tmn,tml,hml,huml,hvml,hfx,qfx,gsw,glw
       real, dimension(ibl:iel,jbl:jel,num_soil_layers), intent(in) :: tslb
       real, dimension(ibm:iem,jbm:jem,kbm:kem,numq), intent(in) :: qa
-      real, intent(in), dimension(ibp3:iep3,kbp3:kep3,1,np3a) :: p3a
+      real, intent(in), dimension(ibp3:iep3,kbp3:kep3,np3a) :: p3a
       real, intent(in), dimension(ibp3:iep3,jbp3:jep3,kbp3:kep3,np3o) :: p3o
       real, dimension(ibc:iec,jbc:jec,kbc:kec), intent(in) :: kmh,kmv,khh,khv
       real, dimension(ibc:iec,jbc:jec,kbc:kec), intent(in) :: cme
