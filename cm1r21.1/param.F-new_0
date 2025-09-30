@@ -52,7 +52,7 @@
       double precision :: stattim,taptim,rsttim,radtim,prcltim
       logical, dimension(maxq) :: cloudvar,rhovar
       real, intent(inout), dimension(maxq) :: qmag
-      character(len=4), dimension(maxq) :: qname
+      character(len=3), dimension(maxq) :: qname
       character(len=20), dimension(maxq) :: qunit
       character(len=6), dimension(maxq) :: budname
       real, dimension(ib:ie) :: xh,rxh,arh1,arh2,uh,ruh
@@ -4119,13 +4119,20 @@
       !cccccccccccccccccccccccccccccccccccccccccccccccccccc!
         IF( ptype.eq.50 )THEN
 
-          numq = 8    ! there are 8 water-related advected mixing ratio variables
+          numq = 8    ! number of prognostic mp variables (incl. qv)
 
           nqv  = 1    ! qv
           nql1 = 2    ! the first liquid variable
           nql2 = 3    ! the last liquid variable
           nqs1 = 4    ! the first solid variable
           nqs2 = 4    ! the last solid variable
+
+         !     set q array index for each scalar
+         ! NOTE: nqc, nqr, nqi1,nqi2,nqi3,nqi4 are set later in this subroutine (they are used by other schemes also)
+          nnr   = 5
+          nni1  = 6
+          nqir1 = 7
+          nbi1  = 8
 
           cloudvar(1) = .false.
           cloudvar(2) = .true.
@@ -4139,11 +4146,11 @@
           qname(1) = 'qv '
           qname(2) = 'qc '
           qname(3) = 'qr '
-          qname(4) = 'qit1'
-          qname(5) = 'nit1'
-          qname(6) = 'qnr'
-          qname(7) = 'qir1'
-          qname(8) = 'bir1'
+          qname(4) = 'qi1'
+          qname(5) = 'nr'
+          qname(6) = 'ni1'
+          qname(7) = 'ri1'
+          qname(8) = 'bi1'
 
           qunit(1) = 'kg/kg'
           qunit(2) = 'kg/kg'
@@ -4166,22 +4173,30 @@
           qmag(8) = 1.0e-5
 
           ! for p3 arrays:
-!         np3a = 22
-          np3a = 23
-          np3a = np3a + nout2d + nout3d
-          np3o =  4
+          np3a = 23 + nout2d + nout3d
+          np3o =  4     ! 1 x nCat; for vmi_(x), dmi_(x), rhoi_(x), dhmax_(x)
 
       !cccccccccccccccccccccccccccccccccccccccccccccccccccc!
 
         ELSEIF( ptype.eq.51 )THEN
 
-          numq = 11   ! there are 11 water-related advected mixing ratio variables
+          numq = 11   ! number of prognostic mp variables (incl. qv)
 
           nqv  = 1    ! qv
           nql1 = 2    ! the first liquid variable
           nql2 = 3    ! the last liquid variable
           nqs1 = 4    ! the first solid variable
           nqs2 = 4    ! the last solid variable
+
+         ! set q array index for each scalar
+         ! NOTE: nqc, nqr, nqi1,nqi2,nqi3,nqi4 are set later in this subroutine (they are used by other schemes also)
+          nnc   =  5
+          nnr   =  6
+          nni1  =  7
+          nqir1 =  8
+          nbi1  =  9
+          nzi1  = 10
+          nqil1 = 11
 
           cloudvar(1) = .false.
           cloudvar(2) = .true.
@@ -4198,14 +4213,14 @@
           qname(1)  = 'qv '
           qname(2)  = 'qc '
           qname(3)  = 'qr '
-          qname(4)  = 'qit1'
-          qname(5)  = 'nit1'
-          qname(6)  = 'qnr'
-          qname(7)  = 'qir1'
-          qname(8)  = 'bir1'
-          qname(9)  = 'qnc'
-          qname(10) = 'zit1'
-          qname(11) = 'qil1'
+          qname(4)  = 'qi1'
+          qname(5)  = 'nc'
+          qname(6)  = 'nr'
+          qname(7)  = 'ni1'
+          qname(8)  = 'ri1'
+          qname(9)  = 'bi1'
+          qname(10) = 'zi1'
+          qname(11) = 'li1'
 
           qunit(1) = 'kg/kg'
           qunit(2) = 'kg/kg'
@@ -4213,9 +4228,9 @@
           qunit(4) = 'kg/kg'
           qunit(5) = '#/kg'
           qunit(6) = '#/kg'
-          qunit(7) = 'kg/kg'
-          qunit(8) = 'm^3 kg^-1'
-          qunit(9) = '#/kg'
+          qunit(7) = '#/kg'
+          qunit(8) = 'kg/kg'
+          qunit(9) = 'm^3 kg^-1'
           qunit(10) = 'm(6) kg(-1)'
           qunit(11) = 'kg/kg'
 
@@ -4225,31 +4240,43 @@
           qmag(2) = 0.01
           qmag(3) = 0.01
           qmag(4) = 0.01
-          qmag(5) = 1.0e5
+          qmag(5) = 1.0e8
           qmag(6) = 1.0e5
-          qmag(7) = 0.01
-          qmag(8) = 1.0e-5
-          qmag(9) = 1.0e8
-          qmag(10) = 1.0e-3
+          qmag(7) = 1.0e5
+          qmag(8) = 0.01
+          qmag(9) = 1.0e-5
+          qmag(10) = 1.0e-10
           qmag(11) = 0.01
 
           ! for p3 arrays:
-          np3a = 25            ! 3-mom, liqfrac, 1-cat (incl. vmi_1, dmi_1, rhoi_1)
-          np3a = np3a + nout2d + nout3d + 1  !(1 for dhmax_x)
+          np3a = 25 + nout2d + nout3d
           np3o =  4            ! 1 x nCat; for vmi_(x), dmi_(x), rhoi_(x), dhmax_(x)
-
-          np3a = np3a + 7      ! adding 7 additional 3d output fields
 
       !cccccccccccccccccccccccccccccccccccccccccccccccccccc!
         ELSEIF( ptype.eq.52 )THEN
 
-          numq = 17   ! there are 17 water-related advected mixing ratio variables
+          numq = 17   ! number of prognostic mp variables (incl. qv)
 
           nqv  = 1    ! qv
           nql1 = 2    ! the first liquid variable
           nql2 = 3    ! the last liquid variable
           nqs1 = 4    ! the first solid variable
           nqs2 = 5    ! the last solid variable
+
+         ! set q array index for each scalar
+         ! NOTE: nqc, nqr, nqi1,nqi2 are set later in this subroutine (they are used by other schemes also)
+          nnc   =  6
+          nnr   =  7
+          nni1  =  8
+          nqir1 =  9
+          nbi1  = 10
+          nzi1  = 11
+          nqil1 = 12
+          nni2  = 13
+          nqir2 = 14
+          nbi2  = 15
+          nzi2  = 16
+          nqil2 = 17
 
           cloudvar( 1) = .false.
           cloudvar( 2) = .true.
@@ -4272,20 +4299,20 @@
           qname( 1) = 'qv '
           qname( 2) = 'qc '
           qname( 3) = 'qr '
-          qname( 4) = 'qit1'
-          qname( 5) = 'qit2'
+          qname( 4) = 'qi1'
+          qname( 5) = 'qi2'
           qname( 6) = 'nc '
           qname( 7) = 'nr '
-          qname( 8) = 'nit1'
-          qname( 9) = 'qir1'
+          qname( 8) = 'ni1'
+          qname( 9) = 'ri1'
           qname(10) = 'bi1'
-          qname(11) = 'nit2'
-          qname(12) = 'qir2'
-          qname(13) = 'bir2'
-          qname(14) = 'zit1'
-          qname(15) = 'qil1'
-          qname(16) = 'zit2'
-          qname(17) = 'qil2'
+          qname(11) = 'zi1'
+          qname(12) = 'li1'
+          qname(13) = 'ni2'
+          qname(14) = 'ri2'
+          qname(15) = 'bi2'
+          qname(16) = 'zi2'
+          qname(17) = 'li2'
 
           qunit( 1) = 'kg/kg'
           qunit( 2) = 'kg/kg'
@@ -4297,11 +4324,11 @@
           qunit( 8) = '#/kg'
           qunit( 9) = 'kg/kg'
           qunit(10) = 'm^-3 kg^-1'
-          qunit(11) = '#/kg'
+          qunit(11) = 'm^6 kg^-1'
           qunit(12) = 'kg/kg'
-          qunit(13) = 'm^-3 kg^-1'
-          qunit(14) = 'm^6 kg^-1'
-          qunit(15) = 'kg/kg'
+          qunit(13) = '#/kg'
+          qunit(14) = 'kg/kg'
+          qunit(15) = 'm^-3 kg^-1'
           qunit(16) = 'm^6 kg^-1'
           qunit(17) = 'kg/kg'
 
@@ -4317,30 +4344,49 @@
           qmag( 8) = 1.0e5
           qmag( 9) = 0.01
           qmag(10) = 1.0e-5
-          qmag(11) = 1.0e5
+          qmag(11) = 1.0e-10
           qmag(12) = 0.01
-          qmag(13) = 1.0e-5
-          qmag(14) = 1.0e-3
-          qmag(15) = 0.01
-          qmag(16) = 1.0e-3
+          qmag(13) = 1.0e5
+          qmag(14) = 0.01
+          qmag(15) = 1.0e-5
+          qmag(16) = 1.0e-10
           qmag(17) = 0.01
 
           ! for p3 arrays:
-          np3a = 34            ! 3-mom, liqfrac, 2-cat  (no extra output)
-          np3a = np3a + nout2d + nout3d + 2  !(2 for dhmax_x)
+          np3a = 31 + nout2d + nout3d
           np3o =  8            ! 2 x nCat; for vmi_(x), dmi_(x), rhoi_(x), dhmax_(x)
 
       !cccccccccccccccccccccccccccccccccccccccccccccccccccc!
 
         ELSEIF( ptype.eq.53 )THEN
 
-          numq = 23   ! there are 17 water-related advected mixing ratio variables
+          numq = 23   ! number of prognostic mp variables (incl. qv)
 
           nqv  = 1    ! qv
           nql1 = 2    ! the first liquid variable
           nql2 = 3    ! the last liquid variable
           nqs1 = 4    ! the first solid variable
           nqs2 = 6    ! the last solid variable
+
+         ! set q array index for each scalar
+         ! NOTE: nqc, nqr, nqi1,nqi2,nqi3 are set later in this subroutine (they are used by other schemes also)
+          nnc   =  7
+          nnr   =  8
+          nni1  =  9
+          nqir1 = 10
+          nbi1  = 11
+          nzi1  = 12
+          nqil1 = 13
+          nni2  = 14
+          nqir2 = 15
+          nbi2  = 16
+          nzi2  = 17
+          nqil2 = 18
+          nni3  = 19
+          nqir3 = 20
+          nbi3  = 21
+          nzi3  = 22
+          nqil3 = 23
 
           cloudvar( 1) = .false.
           cloudvar( 2) = .true.
@@ -4369,26 +4415,26 @@
           qname( 1) = 'qv '
           qname( 2) = 'qc '
           qname( 3) = 'qr '
-          qname( 4) = 'qit1'
-          qname( 5) = 'qit2'
-          qname( 6) = 'qit3'
+          qname( 4) = 'qi1'
+          qname( 5) = 'qi2'
+          qname( 6) = 'qi3'
           qname( 7) = 'nc '
           qname( 8) = 'nr '
-          qname( 9) = 'nit1'
-          qname(10) = 'qir1'
-          qname(11) = 'bir1'
-          qname(12) = 'nit2'
-          qname(13) = 'qir2'
-          qname(14) = 'bir2'
-          qname(15) = 'zit1'
-          qname(16) = 'qil1'
-          qname(17) = 'zit2'
-          qname(18) = 'qil2'
-          qname(19) = 'nit3'
-          qname(20) = 'qir3'
-          qname(21) = 'bir3'
-          qname(22) = 'zit3'
-          qname(23) = 'qil3'
+          qname( 9) = 'ni1'
+          qname(10) = 'ri1'
+          qname(11) = 'bi1'
+          qname(12) = 'zi1'
+          qname(13) = 'li1'
+          qname(14) = 'ni2'
+          qname(15) = 'ri2'
+          qname(16) = 'bi2'
+          qname(17) = 'zi2'
+          qname(18) = 'li2'
+          qname(19) = 'ni3'
+          qname(20) = 'ri3'
+          qname(21) = 'bi3'
+          qname(22) = 'zi3'
+          qname(23) = 'li3'
 
           qunit( 1) = 'kg/kg'
           qunit( 2) = 'kg/kg'
@@ -4401,11 +4447,11 @@
           qunit( 9) = '#/kg'
           qunit(10) = 'kg/kg'
           qunit(11) = 'm^-3 kg^-1'
-          qunit(12) = '#/kg'
+          qunit(12) = 'm^6 kg^-1'
           qunit(13) = 'kg/kg'
-          qunit(14) = 'm^-3 kg^-1'
-          qunit(15) = 'm^6 kg^-1'
-          qunit(16) = 'kg/kg'
+          qunit(14) = '#/kg'
+          qunit(15) = 'kg/kg'
+          qunit(16) = 'm^-3 kg^-1'
           qunit(17) = 'm^6 kg^-1'
           qunit(18) = 'kg/kg'
           qunit(19) = '#/kg'
@@ -4427,35 +4473,59 @@
           qmag( 9) = 1.0e5
           qmag(10) = 0.01
           qmag(11) = 1.0e-5
-          qmag(12) = 1.0e5
+          qmag(12) = 1.0e-10
           qmag(13) = 0.01
-          qmag(14) = 1.0e-5
-          qmag(15) = 1.0e-3
-          qmag(16) = 0.01
-          qmag(17) = 1.0e-3
+          qmag(14) = 1.0e5
+          qmag(15) = 0.01
+          qmag(16) = 1.0e-5
+          qmag(17) = 1.0e-10
           qmag(18) = 0.01
           qmag(19) = 1.0e5
           qmag(20) = 0.01
           qmag(21) = 1.0e-5
-          qmag(22) = 1.0e-3
+          qmag(22) = 1.0e-10
           qmag(23) = 0.01
 
           ! for p3 arrays:
-          np3a = 43            ! 3-mom, liqfrac, 3-cat (no extra output)
-          np3a = np3a + nout2d + nout3d + 3  !(3 for dhmax_x)
+          np3a = 37 + nout2d + nout3d
           np3o = 12            ! 3 x nCat; for vmi_(x), dmi_(x), rhoi_(x), dhmax_(x)
 
       !cccccccccccccccccccccccccccccccccccccccccccccccccccc!
 
         ELSEIF( ptype.eq.54 )THEN
 
-          numq = 29   ! there are 29 water-related advected mixing ratio variables
+          numq = 29   ! number of prognostic mp variables (incl. qv)
 
           nqv  = 1    ! qv
           nql1 = 2    ! the first liquid variable
           nql2 = 3    ! the last liquid variable
           nqs1 = 4    ! the first solid variable
           nqs2 = 7    ! the last solid variable
+
+         ! set q array index for each scalar
+         ! NOTE: nqc, nqr, nqi1,nqi2,nqi3,nqi4 are set later in this subroutine (they are used by other schemes also)
+          nnc   =  8
+          nnr   =  9
+          nni1  = 10
+          nqir1 = 11
+          nbi1  = 12
+          nzi1  = 13
+          nqil1 = 14
+          nni2  = 15
+          nqir2 = 16
+          nbi2  = 17
+          nzi2  = 18
+          nqil2 = 19
+          nni3  = 20
+          nqir3 = 21
+          nbi3  = 22
+          nzi3  = 23
+          nqil3 = 24
+          nni4  = 25
+          nqir4 = 26
+          nbi4  = 27
+          nzi4  = 28
+          nqil4 = 29
 
           cloudvar( 1) = .false.
           cloudvar( 2) = .true.
@@ -4490,33 +4560,32 @@
           qname( 1) = 'qv '
           qname( 2) = 'qc '
           qname( 3) = 'qr '
-          qname( 4) = 'qit1'
-          qname( 5) = 'qit2'
-          qname( 6) = 'qit3'
-          qname( 7) = 'qit4'
+          qname( 4) = 'qi1'
+          qname( 5) = 'qi2'
+          qname( 6) = 'qi3'
+          qname( 7) = 'qi4'
           qname( 8) = 'nc '
           qname( 9) = 'nr '
-          qname(10) = 'nit1'
-          qname(11) = 'qir1'
-          qname(12) = 'bir1'
-          qname(13) = 'nit2'
-          qname(14) = 'qir2'
-          qname(15) = 'bir2'
-          qname(16) = 'zit1'
-          qname(17) = 'qil1'
-          qname(18) = 'zit2'
-          qname(19) = 'qil2'
-          qname(20) = 'nit3'
-          qname(21) = 'qir3'
-          qname(22) = 'bir3'
-          qname(23) = 'zit3'
-          qname(24) = 'qil3'
-          qname(25) = 'nit4'
-          qname(26) = 'qir4'
-          qname(27) = 'bir4'
-          qname(28) = 'zit4'
-          qname(29) = 'qil4'
-
+          qname(10) = 'ni1'
+          qname(11) = 'ri1'
+          qname(12) = 'bi1'
+          qname(13) = 'zi1'
+          qname(14) = 'li1'
+          qname(15) = 'ni2'
+          qname(16) = 'ri2'
+          qname(17) = 'bi2'
+          qname(18) = 'zi2'
+          qname(19) = 'li2'
+          qname(20) = 'ni3'
+          qname(21) = 'ri3'
+          qname(22) = 'bi3'
+          qname(23) = 'zi3'
+          qname(24) = 'li3'
+          qname(25) = 'ni4'
+          qname(26) = 'ri4'
+          qname(27) = 'bi4'
+          qname(28) = 'zi4'
+          qname(29) = 'li4'
 
           qunit( 1) = 'kg/kg'
           qunit( 2) = 'kg/kg'
@@ -4530,10 +4599,10 @@
           qunit(10) = '#/kg'
           qunit(11) = 'kg/kg'
           qunit(12) = 'm^-3 kg^-1'
-          qunit(13) = '#/kg'
-          qunit(14) = 'kg/kg'
-          qunit(15) = 'm^-3 kg^-1'
-          qunit(16) = 'm^6 kg^-1'
+          qunit(13) = 'm^-3 kg^-1'
+          qunit(14) = 'm^6 kg^-1'
+          qunit(15) = '#/kg'
+          qunit(16) = 'kg/kg'
           qunit(17) = 'kg/kg'
           qunit(18) = 'm^6 kg^-1'
           qunit(19) = 'kg/kg'
@@ -4562,28 +4631,27 @@
           qmag(10) = 1.0e5
           qmag(11) = 0.01
           qmag(12) = 1.0e-5
-          qmag(13) = 1.0e5
-          qmag(14) = 0.01
-          qmag(15) = 1.0e-5
-          qmag(16) = 1.0e-3
+          qmag(13) = 1.0e-10
+          qmag(14) = 1.0e-5
+          qmag(15) = 1.0e5
+          qmag(16) = 0.01
           qmag(17) = 0.01
-          qmag(18) = 1.0e-3
+          qmag(18) = 1.0e-10
           qmag(19) = 0.01
           qmag(20) = 1.0e5
           qmag(21) = 0.01
           qmag(22) = 1.0e-5
-          qmag(23) = 1.0e-3
+          qmag(23) = 1.0e-10
           qmag(24) = 0.01
           qmag(25) = 1.0e5
           qmag(26) = 0.01
           qmag(27) = 1.0e-5
-          qmag(28) = 1.0e-3
+          qmag(28) = 1.0e-10
           qmag(29) = 0.01
 
           ! for p3 arrays:
-          np3a = 52            ! 3-mom, liqfrac, 4-cat  (no extra output)
-          np3a = np3a + nout2d + nout3d + 4  !(4 for dhmax_x)
-          np3o = 16            ! 4 x nCat for vmi_(x), dmi_(x), rhoi_(x), dhmax_(x)
+          np3a = 43 + nout2d + nout3d
+          np3o = 16    ! 4 x nCat for vmi_(x), dmi_(x), rhoi_(x), dhmax_(x)
 
         ENDIF
 
@@ -4807,6 +4875,7 @@
       nncc = 0
       nqi2 = 0
       nqi3 = 0
+      nqi4 = 0
 
       do n=1,numq
         if( qname(n).eq.'qc ' .or. qname(n).eq.'ql ' ) nqc = n
@@ -4818,6 +4887,7 @@
         if( qname(n).eq.'ncc' ) nncc = n
         if( qname(n).eq.'qi2' ) nqi2 = n
         if( qname(n).eq.'qi3' ) nqi3 = n
+        if( qname(n).eq.'qi4' ) nqi4 = n
       enddo
 
       if(numq .gt. maxq)then
