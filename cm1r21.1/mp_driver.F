@@ -34,7 +34,7 @@
     use lfoice_module, only : lfo_ice_drive,lfoice_init
     use module_mp_graupel , only : mp_graupel
     use module_mp_nssl_2mom, only : nssl_2mom_driver
-    use microphy_p3, only : mp_p3_wrapper_wrf
+    use microphy_p3, only : mp_p3_wrapper_wrfcm1
     use module_mp_jensen_ishmael , only : mp_jensen_ishmael
     use mp_wsm6 , only : refl10cm_wsm6,mp_wsm6_init
     use mmm_physics_wrapper_module, only : mp_wsm6_wrapper,mp_wsm6_effectRad_wrapper
@@ -66,7 +66,7 @@
     real, intent(inout), dimension(ibr:ier,jbr:jer,kbr:ker) :: effc,effi,effs,effr,effg,effis
     real, intent(inout) , dimension(ibdt:iedt,jbdt:jedt,kbdt:kedt,ntdiag) :: tdiag
     real, intent(inout) , dimension(ibdq:iedq,jbdq:jedq,kbdq:kedq,nqdiag) :: qdiag
-    real, intent(inout) , dimension(ib2d:ie2d,jb2d:je2d,nout2d) :: out2d
+    real, intent(inout) , dimension(ib2d:ie2d,jb2d:je2d,nout2d)           :: out2d
     real, intent(inout) , dimension(ib3d:ie3d,jb3d:je3d,kb3d:ke3d,nout3d) :: out3d
     real, intent(inout), dimension(ibtmp:ietmp,kbtmp:ketmp  ,ntmp2d ) :: tmp2d
     real, intent(inout), dimension(ibtmp:ietmp,ntmp1d) :: tmp1d
@@ -84,6 +84,8 @@
     character(len=40) :: errmsg
     integer :: errflg
     real, dimension(kbtmp:ketmp) :: p1d,t1d,qv1d,qr1d,qs1d,qg1d,dbz1d,zp
+
+    character(len=16), parameter :: model = 'CM1'
 
     !........
 
@@ -1020,7 +1022,7 @@
               enddo
               enddo
 
-              call mp_p3_wrapper_wrf( th     = p3a(:,:,1,1),                   &
+              call mp_p3_wrapper_wrfcm1( th  = p3a(:,:,1,1),                   &
                                qv            = p3a(:,:,1,2),                   &
                                qc            = p3a(:,:,1,3),                   &
                                qr            = p3a(:,:,1,4),                   &
@@ -1044,6 +1046,10 @@
                                diag_zdbz     = p3a(:,:,1,14),                  &
                                diag_effc     = p3a(:,:,1,15),                  &
                                diag_effi_ave = p3a(:,:,1,16),                  &
+                               model         = model,                          &
+                               n_diag2d      = nout2d,                         &
+                               n_diag3d      = nout3d,                         &
+
                                n_iceCat      = 1,                              &
 
                                qit_1         = p3a(:,:,1,17),                  &
@@ -1143,7 +1149,7 @@
               enddo
               enddo
 
-              call mp_p3_wrapper_wrf( th     = p3a(:,:,1,1),                   &
+              call mp_p3_wrapper_wrfcm1( th  = p3a(:,:,1,1),                   &
                                qv            = p3a(:,:,1,2),                   &
                                qc            = p3a(:,:,1,3),                   &
                                qr            = p3a(:,:,1,4),                   &
@@ -1167,6 +1173,10 @@
                                diag_zdbz     = p3a(:,:,1,14),                  &
                                diag_effc     = p3a(:,:,1,15),                  &
                                diag_effi_ave = p3a(:,:,1,16),                  &
+                               model         = model,                          &
+                               n_diag2d      = nout2d,                         &
+                               n_diag3d      = nout3d,                         &
+
                                n_iceCat      = 1,                              &
 
                                qit_1         = p3a(:,:,1,17),                  &
@@ -1281,7 +1291,7 @@
               enddo
               enddo
 
-              call mp_p3_wrapper_wrf( th     = p3a(:,:,1,1),                   &
+              call mp_p3_wrapper_wrfcm1( th  = p3a(:,:,1,1),                   &
                                qv            = p3a(:,:,1,2),                   &
                                qc            = p3a(:,:,1,3),                   &
                                qr            = p3a(:,:,1,4),                   &
@@ -1305,6 +1315,10 @@
                                diag_zdbz     = p3a(:,:,1,14),                  &
                                diag_effc     = p3a(:,:,1,15),                  &
                                diag_effi_ave = p3a(:,:,1,16),                  &
+                               model         = model,                          &
+                               n_diag2d      = nout2d,                         &
+                               n_diag3d      = nout3d,                         &
+
                                n_iceCat      = 2,                              &
 
                                qit_1         = p3a(:,:,1,17),                  &
@@ -1450,7 +1464,7 @@
               enddo
               enddo
 
-              call mp_p3_wrapper_wrf( th     = p3a(:,:,1,1),                   &
+              call mp_p3_wrapper_wrfcm1( th  = p3a(:,:,1,1),                   &
                                qv            = p3a(:,:,1,2),                   &
                                qc            = p3a(:,:,1,3),                   &
                                qr            = p3a(:,:,1,4),                   &
@@ -1474,6 +1488,10 @@
                                diag_zdbz     = p3a(:,:,1,14),                  &
                                diag_effc     = p3a(:,:,1,15),                  &
                                diag_effi_ave = p3a(:,:,1,16),                  &
+                               model         = model,                          &
+                               n_diag2d      = nout2d,                         &
+                               n_diag3d      = nout3d,                         &
+
                                n_iceCat      = 3,                              &
 
                                qit_1         = p3a(:,:,1,17),                  &
@@ -1650,7 +1668,7 @@
               enddo
               enddo
 
-              call mp_p3_wrapper_wrf( th     = p3a(:,:,1,1),                   &
+              call mp_p3_wrapper_wrfcm1( th  = p3a(:,:,1,1),                   &
                                qv            = p3a(:,:,1,2),                   &
                                qc            = p3a(:,:,1,3),                   &
                                qr            = p3a(:,:,1,4),                   &
@@ -1674,6 +1692,10 @@
                                diag_zdbz     = p3a(:,:,1,14),                  &
                                diag_effc     = p3a(:,:,1,15),                  &
                                diag_effi_ave = p3a(:,:,1,16),                  &
+                               model         = model,                          &
+                               n_diag2d      = nout2d,                         &
+                               n_diag3d      = nout3d,                         &
+
                                n_iceCat      = 4,                              &
 
                                qit_1         = p3a(:,:,1,17),                  &

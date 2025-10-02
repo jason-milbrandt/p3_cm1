@@ -28,7 +28,7 @@
 !__________________________________________________________________________________________!
 !                                                                                          !
 ! Version:       5.4.8 + cleanup_202509                                                    !
-! Last updated:  2025 Sept                                                                 !
+! Last updated:  2025 Oct                                                                  !
 !__________________________________________________________________________________________!
 
  MODULE microphy_p3
@@ -45,7 +45,7 @@
 #ifdef ECCCGEM
  public :: mp_p3_wrapper_gem, p3_phybusinit, p3_lwc, p3_iwc
 #else
- public :: mp_p3_wrapper_wrf
+ public :: mp_p3_wrapper_wrfcm1
 #endif
 
  integer, parameter, public :: STATUS_ERROR  = -1
@@ -782,24 +782,22 @@ END subroutine p3_init
 !==================================================================================================!
 #ifndef ECCCGEM
 
-   SUBROUTINE mp_p3_wrapper_wrf( th,qv,qc,qr,qnr,th_old,qv_old,pii,p,dz,w,dt,itimestep,         &
+   SUBROUTINE mp_p3_wrapper_wrfcm1( th,qv,qc,qr,qnr,th_old,qv_old,pii,p,dz,w,dt,itimestep,      &
                 rainnc,rainncv,sr,snownc,snowncv,                                               &
                 ids, ide, jds, jde, kds, kde ,                                                  &
                 ims, ime, jms, jme, kms, kme ,                                                  &
                 its, ite, jts, jte, kts, kte ,                                                  &
                 diag_zdbz, diag_effc, diag_effi_ave, n_iceCat,                                  &
-                qit_1, qni_1, qir_1, qib_1, diag_vmi_1, diag_dmi_1, diag_rhoi_1, qzi_1, qli_1,  &
+                qit_1, qni_1, qir_1, qib_1, model, n_diag2d, n_diag3d,                          &
+                                            diag_vmi_1, diag_dmi_1, diag_rhoi_1, qzi_1, qli_1,  &
                 qit_2, qni_2, qir_2, qib_2, diag_vmi_2, diag_dmi_2, diag_rhoi_2, qzi_2, qli_2,  &
                 qit_3, qni_3, qir_3, qib_3, diag_vmi_3, diag_dmi_3, diag_rhoi_3, qzi_3, qli_3,  &
                 qit_4, qni_4, qir_4, qib_4, diag_vmi_4, diag_dmi_4, diag_rhoi_4, qzi_4, qli_4,  &
                 nc, diag2d_01, diag2d_02, diag3d_01, diag3d_02, diag3d_03,                      &
-                diag3d_04, diag3d_05, diag3d_06,diag3d_07, diag3d_08, diag3d_09,diag3d_10,      &
                 diag_dhmax_1, diag_dhmax_2, diag_dhmax_3, diag_dhmax_4 )
 
   !------------------------------------------------------------------------------------------!
-  ! This is the main WRF interface with the P3 microphysics scheme.                          !
-  ! It is also the interface for other models, e.g. CM1, whose interface with P3 is          !
-  ! based on that of WRF.                                                                    !
+  ! This is the main interface for P3 microphysics scheme with the WRF and CM1 models.       !
   !                                                                                          !
   ! It takes 3D arrays (i,j,k) from the driving model and passes 2D slabs (i,k) to the main  !
   ! subroutine ('p3_main') over a j-loop.  For each slab, 'p3_main' updates the prognostic   !
@@ -856,6 +854,9 @@ END subroutine p3_init
    real, dimension(ims:ime, kms:kme, jms:jme), intent(inout):: th,qv,qc,qr,qnr,th_old,qv_old, &
                                                                diag_zdbz,diag_effc,           &
                                                                qit_1,qni_1,qir_1,qib_1
+   character(len=16), intent(in) :: model
+   integer, intent(in)           :: n_diag2d,n_diag3d
+
    real, dimension(ims:ime, kms:kme, jms:jme), intent(inout), optional :: nc
    real, dimension(ims:ime, kms:kme, jms:jme), intent(inout), optional :: qzi_1
    real, dimension(ims:ime, kms:kme, jms:jme), intent(inout), optional :: qli_1
@@ -889,9 +890,9 @@ END subroutine p3_init
    real, dimension(ims:ime, kms:kme, jms:jme), intent(out),   optional :: diag_vmi_4, diag_dmi_4, diag_rhoi_4
    real, dimension(ims:ime, jms:jme),          intent(out),   optional :: diag2d_01, diag2d_02
    real, dimension(ims:ime, kms:kme, jms:jme), intent(out),   optional :: diag3d_01, diag3d_02, diag3d_03
-   real, dimension(ims:ime, kms:kme, jms:jme), intent(out),   optional :: diag3d_04, diag3d_05, diag3d_06
-   real, dimension(ims:ime, kms:kme, jms:jme), intent(out),   optional :: diag3d_07, diag3d_08, diag3d_09
-   real, dimension(ims:ime, kms:kme, jms:jme), intent(out),   optional :: diag3d_10
+!  real, dimension(ims:ime, kms:kme, jms:jme), intent(out),   optional :: diag3d_04, diag3d_05, diag3d_06
+!  real, dimension(ims:ime, kms:kme, jms:jme), intent(out),   optional :: diag3d_07, diag3d_08, diag3d_09
+!  real, dimension(ims:ime, kms:kme, jms:jme), intent(out),   optional :: diag3d_10
 
    real, dimension(ims:ime, kms:kme, jms:jme), intent(out),   optional :: diag_dhmax_1, diag_dhmax_2, diag_dhmax_3, diag_dhmax_4
 
@@ -902,14 +903,9 @@ END subroutine p3_init
    integer, intent(in) :: n_iceCat
 
    !--- local variables/parameters:
-
-   character(len=16), parameter :: model = 'WRF'
-
-   real, dimension(ims:ime, kms:kme) ::nc_loc,ssat
-
+   real, dimension(ims:ime, kms:kme) :: nc_loc,ssat
    real, dimension(ims:ime, kms:kme, n_iceCat) :: qitot,qirim,nitot,birim,diag_dmi,diag_vmi,       &
                                                   diag_rhoi,diag_effi
-
    real, dimension(its:ite, kts:kte, n_iceCat) :: diag_dhmax
 
    real, dimension(ims:ime, kms:kme,n_iceCat)  :: zitot   ! ice mixing ratio, reflectivity          m6 kg-1
@@ -919,8 +915,6 @@ END subroutine p3_init
    real                                        :: dum1,dum2,dum3,dum4
    integer                                     :: i,k,j
 
-   integer, parameter                          :: n_diag2d = 2
-   integer, parameter                          :: n_diag3d = 10
    real, dimension(ims:ime, n_diag2d)          :: diag2d        ! user-defined diagnostic fields (2D)
    real, dimension(ims:ime, kms:kme, n_diag3d) :: diag3d        ! user-defined diagnostic fields (3D)
 
@@ -1117,13 +1111,13 @@ END subroutine p3_init
       if (present(diag3d_01))  diag3d_01(:,:,j)  = diag3d(:,:,1)
       if (present(diag3d_02))  diag3d_02(:,:,j)  = diag3d(:,:,2)
       if (present(diag3d_03))  diag3d_03(:,:,j)  = diag3d(:,:,3)
-      if (present(diag3d_04))  diag3d_04(:,:,j)  = diag3d(:,:,4)
-      if (present(diag3d_05))  diag3d_05(:,:,j)  = diag3d(:,:,5)
-      if (present(diag3d_06))  diag3d_06(:,:,j)  = diag3d(:,:,6)
-      if (present(diag3d_07))  diag3d_07(:,:,j)  = diag3d(:,:,7)
-      if (present(diag3d_08))  diag3d_08(:,:,j)  = diag3d(:,:,8)
-      if (present(diag3d_09))  diag3d_09(:,:,j)  = diag3d(:,:,9)
-      if (present(diag3d_10))  diag3d_10(:,:,j)  = diag3d(:,:,10)
+!       if (present(diag3d_04))  diag3d_04(:,:,j)  = diag3d(:,:,4)
+!       if (present(diag3d_05))  diag3d_05(:,:,j)  = diag3d(:,:,5)
+!       if (present(diag3d_06))  diag3d_06(:,:,j)  = diag3d(:,:,6)
+!       if (present(diag3d_07))  diag3d_07(:,:,j)  = diag3d(:,:,7)
+!       if (present(diag3d_08))  diag3d_08(:,:,j)  = diag3d(:,:,8)
+!       if (present(diag3d_09))  diag3d_09(:,:,j)  = diag3d(:,:,9)
+!       if (present(diag3d_10))  diag3d_10(:,:,j)  = diag3d(:,:,10)
 
    enddo j_loop
 
@@ -1132,7 +1126,7 @@ END subroutine p3_init
       stop
    endif
 
-   END SUBROUTINE mp_p3_wrapper_wrf
+   END SUBROUTINE mp_p3_wrapper_wrfcm1
 
 #endif
 
