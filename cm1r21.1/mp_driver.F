@@ -15,7 +15,7 @@
 
 
     subroutine mp_driver(nstep,dt,qbudget,asq,bsq,xh,ruh,xf,ruf,yh,rvh,yf,rvf,  &
-                         mh,rmh,c1,c2,zh,mf,rmf,zf,rain,prate,pi0,th0,rho0,prs0,qv0,   &
+                         mh,rmh,c1,c2,zh,mf,rmf,zf,rain,hail,prate,srate,pi0,th0,rho0,prs0,qv0,   &
                          rho,prs,dum1,dum2,dum3,dum4,dum5,dum6,dum7,dum8,  &
                          w3d,ppi,pp3d,ppten,sten,tha,th3d,thten,qa,q3d,qten,  &
                          p3a,p3o,dum2d1,dum2d2,dum2d3,dum2d4,dum2d5,  &
@@ -51,8 +51,8 @@
     real, intent(in), dimension(jb:je+1) :: yf,rvf
     real, intent(in), dimension(ib:ie,jb:je,kb:ke) :: mh,rmh,c1,c2,zh
     real, intent(in), dimension(ib:ie,jb:je,kb:ke+1) :: mf,rmf,zf
-    real, intent(inout), dimension(ib:ie,jb:je,nrain) :: rain
-    real, intent(inout), dimension(ib:ie,jb:je) :: prate
+    real, intent(inout), dimension(ib:ie,jb:je,nrain) :: rain,hail
+    real, intent(inout), dimension(ib:ie,jb:je) :: prate,srate
     real, intent(in), dimension(ib:ie,jb:je,kb:ke) :: pi0,th0,rho0,prs0,qv0
     real, intent(inout), dimension(ib:ie,jb:je,kb:ke) :: rho,prs
     real, intent(inout), dimension(ib:ie,jb:je,kb:ke) :: dum1,dum2,dum3,dum4,dum5,dum6,dum7,dum8
@@ -971,7 +971,7 @@
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 !-----------------------------------------------------------------------------------
-!  ptype  configuration
+!  ptype  p3 configuration
 !  -----  ----------------------------------------------
 !   50    1-mom-cld,  2-mom-rain,  2-mom-ice,  1-ice-category
 !   51    2-mom-cld,  2-mom-rain,  3-mom-ice,  1-ice-category,  liq-frac
@@ -1035,17 +1035,16 @@
                                itimestep     = nstep,                          &
                                rainnc        = p3a(:,1,1,12),                  &
                                snownc        = p3a(:,1,1,13),                  &
-                              !snownc        = dum1(:,:,4),                    &
                                rainncv       = dum1(:,:,2),                    &
-                               sr            = dum1(:,:,3),                    &
                                snowncv       = dum1(:,:,5),                    &
+                               sr            = dum1(:,:,3),                    &
                                ids=1, ide=ni, jds=1, jde=1, kds=1, kde=nk ,    &
                                ims=1, ime=ni, jms=1, jme=1, kms=1, kme=nk ,    &
                                its=1, ite=ni, jts=1, jte=1, kts=1, kte=nk ,    &
                                diag_zdbz     = p3a(:,:,1,14),                  &
                                diag_effc     = p3a(:,:,1,15),                  &
                                diag_effi_ave = p3a(:,:,1,16),                  &
-                  n_iceCat      = 1,                              &
+                               n_iceCat      = 1,                              &
 
                                qit_1         = p3a(:,:,1,17),                  &
                                qni_1         = p3a(:,:,1,18),                  &
@@ -1159,17 +1158,16 @@
                                itimestep     = nstep,                          &
                                rainnc        = p3a(:,1,1,12),                  &
                                snownc        = p3a(:,1,1,13),                  &
-                              !snownc        = dum1(:,:,4),                    &
                                rainncv       = dum1(:,:,2),                    &
-                               sr            = dum1(:,:,3),                    &
                                snowncv       = dum1(:,:,5),                    &
+                               sr            = dum1(:,:,3),                    &
                                ids=1, ide=ni, jds=1, jde=1, kds=1, kde=nk ,    &
                                ims=1, ime=ni, jms=1, jme=1, kms=1, kme=nk ,    &
                                its=1, ite=ni, jts=1, jte=1, kts=1, kte=nk ,    &
                                diag_zdbz     = p3a(:,:,1,14),                  &
                                diag_effc     = p3a(:,:,1,15),                  &
                                diag_effi_ave = p3a(:,:,1,16),                  &
-                  n_iceCat      = 1,                              &
+                               n_iceCat      = 1,                              &
 
                                qit_1         = p3a(:,:,1,17),                  &
                                qni_1         = p3a(:,:,1,18),                  &
@@ -1298,17 +1296,16 @@
                                itimestep     = nstep,                          &
                                rainnc        = p3a(:,1,1,12),                  &
                                snownc        = p3a(:,1,1,13),                  &
-                              !snownc        = dum1(:,:,4),                    &
                                rainncv       = dum1(:,:,2),                    &
-                               sr            = dum1(:,:,3),                    &
                                snowncv       = dum1(:,:,5),                    &
+                               sr            = dum1(:,:,3),                    &
                                ids=1, ide=ni, jds=1, jde=1, kds=1, kde=nk ,    &
                                ims=1, ime=ni, jms=1, jme=1, kms=1, kme=nk ,    &
                                its=1, ite=ni, jts=1, jte=1, kts=1, kte=nk ,    &
                                diag_zdbz     = p3a(:,:,1,14),                  &
                                diag_effc     = p3a(:,:,1,15),                  &
                                diag_effi_ave = p3a(:,:,1,16),                  &
-                  n_iceCat      = 2,                              &
+                               n_iceCat      = 2,                              &
 
                                qit_1         = p3a(:,:,1,17),                  &
                                qni_1         = p3a(:,:,1,18),                  &
@@ -1468,17 +1465,16 @@
                                itimestep     = nstep,                          &
                                rainnc        = p3a(:,1,1,12),                  &
                                snownc        = p3a(:,1,1,13),                  &
-                              !snownc        = dum1(:,:,4),                    &
                                rainncv       = dum1(:,:,2),                    &
-                               sr            = dum1(:,:,3),                    &
                                snowncv       = dum1(:,:,5),                    &
+                               sr            = dum1(:,:,3),                    &
                                ids=1, ide=ni, jds=1, jde=1, kds=1, kde=nk ,    &
                                ims=1, ime=ni, jms=1, jme=1, kms=1, kme=nk ,    &
                                its=1, ite=ni, jts=1, jte=1, kts=1, kte=nk ,    &
                                diag_zdbz     = p3a(:,:,1,14),                  &
                                diag_effc     = p3a(:,:,1,15),                  &
                                diag_effi_ave = p3a(:,:,1,16),                  &
-                  n_iceCat      = 3,                              &
+                               n_iceCat      = 3,                              &
 
                                qit_1         = p3a(:,:,1,17),                  &
                                qni_1         = p3a(:,:,1,18),                  &
@@ -1669,17 +1665,16 @@
                                itimestep     = nstep,                          &
                                rainnc        = p3a(:,1,1,12),                  &
                                snownc        = p3a(:,1,1,13),                  &
-                              !snownc        = dum1(:,:,4),                    &
                                rainncv       = dum1(:,:,2),                    &
-                               sr            = dum1(:,:,3),                    &
                                snowncv       = dum1(:,:,5),                    &
+                               sr            = dum1(:,:,3),                    &
                                ids=1, ide=ni, jds=1, jde=1, kds=1, kde=nk ,    &
                                ims=1, ime=ni, jms=1, jme=1, kms=1, kme=nk ,    &
                                its=1, ite=ni, jts=1, jte=1, kts=1, kte=nk ,    &
                                diag_zdbz     = p3a(:,:,1,14),                  &
                                diag_effc     = p3a(:,:,1,15),                  &
                                diag_effi_ave = p3a(:,:,1,16),                  &
-                  n_iceCat      = 4,                              &
+                               n_iceCat      = 4,                              &
 
                                qit_1         = p3a(:,:,1,17),                  &
                                qni_1         = p3a(:,:,1,18),                  &
@@ -1824,11 +1819,13 @@
            if (axisymm.eq.1) then
               do i=1,ni
                  prate(i,j) = p3a(i,1,1,12)*rdt
+                 srate(i,j) = p3a(i,1,1,13)*rdt
                  qbudget(6) = qbudget(6) + p3a(i,1,1,12)*ruh(i)*rvh(j)*dx*dy*dum3(i,j,1)/rho(i,j,1)
               enddo
            else
               do i=1,ni
                  prate(i,j) = p3a(i,1,1,12)*rdt
+                 srate(i,j) = p3a(i,1,1,13)*rdt
                  qbudget(6) = qbudget(6) + p3a(i,1,1,12)*ruh(i)*rvh(j)*dx*dy
               enddo
            endif
@@ -1836,8 +1833,8 @@
            do n=1,nrain
            do i=1,ni
              ! convert from mm to cm:
-              rain(i,j,n) = rain(i,j,n) + 0.1*p3a(i,1,1,12)  !actually, total precip
-             !snow(i,j,n) = snow(i,j,n) + 0.1*p3a(i,1,1,13)
+              rain(i,j,n) = rain(i,j,n) + 0.1*p3a(i,1,1,12)  !total (liquid + solid) precipitation (not just rain :))
+              hail(i,j,n) = hail(i,j,n) + 0.1*p3a(i,1,1,13)  !solid precipitation (not just snow :))
            enddo
            enddo
 
