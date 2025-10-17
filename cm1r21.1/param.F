@@ -111,7 +111,7 @@
       ! delta(n,m,nu):
       double precision, dimension(0:bign,-1:bigm,0:bign) :: delta
 
-      character(len=60) :: param_mp,param_sgs,param_pbl,param_sfclay,param_rad
+      character(len=80) :: param_mp,param_sgs,param_pbl,param_sfclay,param_rad
 
       logical :: doit,getfall
       logical :: nssl_hail_on = .false.
@@ -2727,7 +2727,7 @@
         if( ptype.eq.27 ) param_mp = 'NSSL 2-moment scheme (graupel and hail)'
         if( ptype.eq.28 ) param_mp = 'NSSL single-moment scheme (graupel-only)'
         if( ptype.eq.50 ) param_mp = 'P3 (1-mom-cld, 2-mom-rain, 2-mom-ice, 1-ice-category)'
-        if( ptype.eq.51 ) param_mp = 'P3 (2-mom-cld, 2-mom-rain, 3-mom-ice, liq-frac, 1-ice-category)'
+        if( ptype.eq.51 ) param_mp = 'P3 v3.1.6.6, operational HRDPS (2-mom-cld, 2-mom-rain, 2-mom-ice, 1-ice-cat)'
         if( ptype.eq.52 ) param_mp = 'P3 (2-mom-cld, 2-mom-rain, 3-mom-ice, liq-frac, 2-ice-categories)'
         if( ptype.eq.53 ) param_mp = 'P3 (2-mom-cld, 2-mom-rain, 3-mom-ice, liq-frac, 3-ice-categories)'
         if( ptype.eq.54 ) param_mp = 'P3 (2-mom-cld, 2-mom-rain, 3-mom-ice, liq-frac, 4-ice-categories)'
@@ -4055,52 +4055,66 @@
           if(dowr) write(outfile,*)
           if(dowr) write(outfile,*) 'Calling P3_INIT'
 
-          if(     ptype.eq.50 )then
+       !for v3.1.6.6:
+          if( ptype.eq.51 )then
             call p3_init(lookup_file_dir=p3_LUTdir,  &
-                         nCat=1,               &
-                         trplMomI=.false.,     &
-                         liqFrac=.false.,      &
-                         model='WRF',          &
-                         stat=p3stat,          &
-                         abort_on_err=.false., &
-                         dowr=dowr)
-          elseif( ptype.eq.51 )then
-            call p3_init(lookup_file_dir=p3_LUTdir,  &
-                         nCat=1,               &
-                         trplMomI=.true.,      &
-                         liqFrac=.true.,       &
-                         model='WRF',          &
-                         stat=p3stat,          &
-                         abort_on_err=.false., &
-                         dowr=dowr)
-          elseif( ptype.eq.52 )then
-            call p3_init(lookup_file_dir=p3_LUTdir,  &
-                         nCat=2,               &
-                         trplMomI=.true.,      &
-                         liqFrac=.true.,       &
-                         model='WRF',          &
-                         stat=p3stat,          &
-                         abort_on_err=.false., &
-                         dowr=dowr)
-          elseif( ptype.eq.53 )then
-            call p3_init(lookup_file_dir=p3_LUTdir,  &
-                         nCat=3,               &
-                         trplMomI=.true.,      &
-                         liqFrac=.true.,       &
-                         model='WRF',          &
-                         stat=p3stat,          &
-                         abort_on_err=.false., &
-                         dowr=dowr)
-          elseif( ptype.eq.54 )then
-            call p3_init(lookup_file_dir=p3_LUTdir,  &
-                         nCat=4,               &
-                         trplMomI=.true.,      &
-                         liqFrac=.true.,       &
-                         model='WRF',          &
-                         stat=p3stat,          &
-                         abort_on_err=.false., &
-                         dowr=dowr)
+                         nCat=1,                     &
+                         stat=p3stat,                &
+                         abort_on_err=.false.)
           endif
+
+!           elseif( ptype.eq.49 )then
+!             call p3_init(lookup_file_dir=p3_LUTdir,  &
+!                          nCat=1,               &
+!                          model='CM1',          &
+!                          stat=p3stat,          &
+!                          abort_on_err=.false.)
+!           if(     ptype.eq.50 )then
+!             call p3_init(lookup_file_dir=p3_LUTdir,  &
+!                          nCat=1,               &
+!                          trplMomI=.false.,     &
+!                          liqFrac=.false.,      &
+!                          model='CM1',          &
+!                          stat=p3stat,          &
+!                          abort_on_err=.false., &
+!                          dowr=dowr)
+!           elseif( ptype.eq.51 )then
+!             call p3_init(lookup_file_dir=p3_LUTdir,  &
+!                          nCat=1,               &
+!                          trplMomI=.true.,      &
+!                          liqFrac=.true.,       &
+!                          model='CM1',          &
+!                          stat=p3stat,          &
+!                          abort_on_err=.false., &
+!                          dowr=dowr)
+!           elseif( ptype.eq.52 )then
+!             call p3_init(lookup_file_dir=p3_LUTdir,  &
+!                          nCat=2,               &
+!                          trplMomI=.true.,      &
+!                          liqFrac=.true.,       &
+!                          model='CM1',          &
+!                          stat=p3stat,          &
+!                          abort_on_err=.false., &
+!                          dowr=dowr)
+!           elseif( ptype.eq.53 )then
+!             call p3_init(lookup_file_dir=p3_LUTdir,  &
+!                          nCat=3,               &
+!                          trplMomI=.true.,      &
+!                          liqFrac=.true.,       &
+!                          model='CM1',          &
+!                          stat=p3stat,          &
+!                          abort_on_err=.false., &
+!                          dowr=dowr)
+!           elseif( ptype.eq.54 )then
+!             call p3_init(lookup_file_dir=p3_LUTdir,  &
+!                          nCat=4,               &
+!                          trplMomI=.true.,      &
+!                          liqFrac=.true.,       &
+!                          model='CM1',          &
+!                          stat=p3stat,          &
+!                          abort_on_err=.false., &
+!                          dowr=dowr)
+!           endif
 
           if(dowr) write(outfile,*) 'Returned from P3_INIT'
           if(dowr) write(outfile,*)
