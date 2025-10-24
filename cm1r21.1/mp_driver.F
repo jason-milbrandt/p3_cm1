@@ -62,7 +62,7 @@
     real, intent(inout), dimension(ibm:iem,jbm:jem,kbm:kem,numq) :: qa,q3d,qten
     real, intent(inout), dimension(ibp3:iep3,kbp3:kep3,1,np3a) :: p3a
     real, intent(inout), dimension(ibp3:iep3,jbp3:jep3,kbp3:kep3,np3o) :: p3o
-      double precision, intent(inout), dimension(ib:ie,jb:je) :: dum2d1,dum2d2,dum2d3,dum2d4,dum2d5
+    double precision, intent(inout), dimension(ib:ie,jb:je) :: dum2d1,dum2d2,dum2d3,dum2d4,dum2d5
     real, intent(inout), dimension(ibr:ier,jbr:jer,kbr:ker) :: effc,effi,effs,effr,effg,effis
     real, intent(inout) , dimension(ibdt:iedt,jbdt:jedt,kbdt:kedt,ntdiag) :: tdiag
     real, intent(inout) , dimension(ibdq:iedq,jbdq:jedq,kbdq:kedq,nqdiag) :: qdiag
@@ -1035,10 +1035,11 @@
                                w             = p3a(:,:,1,11),                  &
                                dt            = dt,                             &
                                itimestep     = nstep,                          &
-                               rainnc        = p3a(:,1,1,12),                  &
-                               snownc        = p3a(:,1,1,13),                  &
-                               rainncv       = dum1(:,:,2),                    &
-                               snowncv       = dum1(:,:,5),                    &
+
+                               rainncv       = p3a(:,1,1,12),                  &
+                               snowncv       = p3a(:,1,1,13),                  &
+                               rainnc        = dum1(:,:,2),                    &
+                               snownc        = dum1(:,:,5),                    &
                                sr            = dum1(:,:,3),                    &
                                ids=1, ide=ni, jds=1, jde=1, kds=1, kde=nk ,    &
                                ims=1, ime=ni, jms=1, jme=1, kms=1, kme=nk ,    &
@@ -1162,10 +1163,10 @@
                                w             = p3a(:,:,1,11),                  &
                                dt            = dt,                             &
                                itimestep     = nstep,                          &
-                               rainnc        = p3a(:,1,1,12),                  &
-                               snownc        = p3a(:,1,1,13),                  &
-                               rainncv       = dum1(:,:,2),                    &
-                               snowncv       = dum1(:,:,5),                    &
+                               rainncv       = p3a(:,1,1,12),                  &
+                               snowncv       = p3a(:,1,1,13),                  &
+                               rainnc        = dum1(:,:,2),                    &
+                               snownc        = dum1(:,:,5),                    &
                                sr            = dum1(:,:,3),                    &
                                ids=1, ide=ni, jds=1, jde=1, kds=1, kde=nk ,    &
                                ims=1, ime=ni, jms=1, jme=1, kms=1, kme=nk ,    &
@@ -1304,10 +1305,10 @@
                                w             = p3a(:,:,1,11),                  &
                                dt            = dt,                             &
                                itimestep     = nstep,                          &
-                               rainnc        = p3a(:,1,1,12),                  &
-                               snownc        = p3a(:,1,1,13),                  &
-                               rainncv       = dum1(:,:,2),                    &
-                               snowncv       = dum1(:,:,5),                    &
+                               rainncv       = p3a(:,1,1,12),                  &
+                               snowncv       = p3a(:,1,1,13),                  &
+                               rainnc        = dum1(:,:,2),                    &
+                               snownc        = dum1(:,:,5),                    &
                                sr            = dum1(:,:,3),                    &
                                ids=1, ide=ni, jds=1, jde=1, kds=1, kde=nk ,    &
                                ims=1, ime=ni, jms=1, jme=1, kms=1, kme=nk ,    &
@@ -1477,10 +1478,10 @@
                                w             = p3a(:,:,1,11),                  &
                                dt            = dt,                             &
                                itimestep     = nstep,                          &
-                               rainnc        = p3a(:,1,1,12),                  &
-                               snownc        = p3a(:,1,1,13),                  &
-                               rainncv       = dum1(:,:,2),                    &
-                               snowncv       = dum1(:,:,5),                    &
+                               rainncv       = p3a(:,1,1,12),                  &
+                               snowncv       = p3a(:,1,1,13),                  &
+                               rainnc        = dum1(:,:,2),                    &
+                               snownc        = dum1(:,:,5),                    &
                                sr            = dum1(:,:,3),                    &
                                ids=1, ide=ni, jds=1, jde=1, kds=1, kde=nk ,    &
                                ims=1, ime=ni, jms=1, jme=1, kms=1, kme=nk ,    &
@@ -1681,10 +1682,10 @@
                                w             = p3a(:,:,1,11),                  &
                                dt            = dt,                             &
                                itimestep     = nstep,                          &
-                               rainnc        = p3a(:,1,1,12),                  &
-                               snownc        = p3a(:,1,1,13),                  &
-                               rainncv       = dum1(:,:,2),                    &
-                               snowncv       = dum1(:,:,5),                    &
+                               rainncv       = p3a(:,1,1,12),                  &
+                               snowncv       = p3a(:,1,1,13),                  &
+                               rainnc        = dum1(:,:,2),                    &
+                               snownc        = dum1(:,:,5),                    &
                                sr            = dum1(:,:,3),                    &
                                ids=1, ide=ni, jds=1, jde=1, kds=1, kde=nk ,    &
                                ims=1, ime=ni, jms=1, jme=1, kms=1, kme=nk ,    &
@@ -1838,25 +1839,26 @@
 
          !------   code common to all configs of P3:  ------
 
+           do i=1,ni
+              prate(i,j) = p3a(i,1,1,12)*rdt
+              srate(i,j) = p3a(i,1,1,13)*rdt
+           enddo
+
            if (axisymm.eq.1) then
               do i=1,ni
-                 prate(i,j) = p3a(i,1,1,12)*rdt
-                 srate(i,j) = p3a(i,1,1,13)*rdt
                  qbudget(6) = qbudget(6) + p3a(i,1,1,12)*ruh(i)*rvh(j)*dx*dy*dum3(i,j,1)/rho(i,j,1)
               enddo
            else
               do i=1,ni
-                 prate(i,j) = p3a(i,1,1,12)*rdt
-                 srate(i,j) = p3a(i,1,1,13)*rdt
                  qbudget(6) = qbudget(6) + p3a(i,1,1,12)*ruh(i)*rvh(j)*dx*dy
               enddo
            endif
 
            do n=1,nrain
            do i=1,ni
-             ! convert from mm to cm:
-              rain(i,j,n) = rain(i,j,n) + 0.1*p3a(i,1,1,12)  !total (liquid + solid) precipitation (not just rain :))
-              hail(i,j,n) = hail(i,j,n) + 0.1*p3a(i,1,1,13)  !solid precipitation (not just snow :))
+             ! factor of 0.1 is to convert from mm to cm:
+              rain(i,j,n) = rain(i,j,n) + 0.1*prate(i,j)*dt  !total (liquid + solid) precipitation (not just rain :))
+              hail(i,j,n) = hail(i,j,n) + 0.1*srate(i,j)*dt  !solid precipitation (not just snow :))
            enddo
            enddo
 
