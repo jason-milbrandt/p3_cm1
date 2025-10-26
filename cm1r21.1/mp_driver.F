@@ -1115,6 +1115,9 @@
            elseif (ptype.eq.51) then
 !---------------------------------------------------------------------------!
 !   P3 config:  2-mom-cld, 2-mom-rain, 3-mom-ice, 1-ice-category, liq-frac  !
+!                                                                           !
+!                  *** using this option for P3_v3.6.1.1 ***                !
+!            - zit1 and qil1 are included but just as blank arrays          !
 !---------------------------------------------------------------------------!
 
               do k=1,nk
@@ -1213,10 +1216,10 @@
                                w             = p3a(:,:,1,11),                  &
                                dt            = dt,                             &
                                itimestep     = nstep,                          &
-                               rainnc        = p3a(:,1,1,12),                  &
-                               snownc        = p3a(:,1,1,13),                  &
-                               rainncv       = dum1(:,:,2),                    &
-                               snowncv       = dum1(:,:,5),                    &
+                               rainncv       = p3a(:,1,1,12),                  &
+                               snowncv       = p3a(:,1,1,13),                  &
+                               rainnc        = dum1(:,:,2),                    &
+                               snownc        = dum1(:,:,5),                    &
                                sr            = dum1(:,:,3),                    &
                                ids=1, ide=ni, jds=1, jde=1, kds=1, kde=nk ,    &
                                ims=1, ime=ni, jms=1, jme=1, kms=1, kme=nk ,    &
