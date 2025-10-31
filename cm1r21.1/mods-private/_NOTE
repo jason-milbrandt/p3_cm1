@@ -12,3 +12,6 @@ init3d.F
 param.F
 - includes modified path (./data_files) as input in call to p3_init
 
+writeout.F
+- changes 3d output field names from 'out1', out2'.. to 'out3d1','out3d2', ...
+  following the pattern of 'out2d1', 'out2d2', ..

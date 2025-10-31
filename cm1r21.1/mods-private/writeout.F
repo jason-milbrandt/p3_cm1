@@ -197,7 +197,7 @@
       integer :: ncid,time_index,varid
       real :: tnew,pnew,thold,thnew,rdt,qv,ql,thv,ucrit
       real :: tem,r1,r2,epsd,pint,plast,dtdz,tmax,zibar
-      character(len=10) :: text1
+      character(len=8) :: text1
       character(len=30) :: text2
       logical, parameter :: dosfcflx = .true.
       logical :: dothis,doit
@@ -5407,17 +5407,28 @@
       do n=1,nout3d
 
         n_out = n_out + 1
-        text1 = 'out3d         '
+!         text1 = 'out     '
+!         if(n.lt.10)then
+!           write(text1(4:4),211) n
+!         elseif(n.lt.100)then
+!           write(text1(4:5),212) n
+!         elseif(n.lt.1000)then
+!           write(text1(4:6),213) n
+!         elseif(n.lt.10000)then
+!           write(text1(4:7),214) n
+!         elseif(n.lt.100000)then
+!           write(text1(4:8),215) n
+        text1 = 'out3d       '
         if(n.lt.10)then
           write(text1(6:6),211) n
         elseif(n.lt.100)then
           write(text1(6:7),212) n
         elseif(n.lt.1000)then
           write(text1(6:8),213) n
-        elseif(n.lt.10000)then
-          write(text1(6:9),214) n
-        elseif(n.lt.100000)then
-          write(text1(6:10),215) n
+!         elseif(n.lt.10000)then
+!           write(text1(6:9),214) n   !would need to make length of string 'text1' larger
+!         elseif(n.lt.100000)then
+!           write(text1(6:10),215) n
         else
           print *,'  nout3d is too large '
           call stopcm1
@@ -5438,6 +5449,7 @@
                 enddo
 
         call   writes(dum1,fnum,srec,nwrite,nloop,dat1,dat2,dat3,reqt,myi1p,myi2p,myj1p,myj2p,ncid,time_index,name_output(n_out),levs_output(n_out),sigma,zs,zh,dum9)
+        print*, 'JJJ: ',name_output(n_out)
 
       enddo
 
