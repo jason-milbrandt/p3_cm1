@@ -102,7 +102,7 @@
       real, dimension(:,:,:), allocatable :: rain,raincv,hail,sws,svs,sps,srs,sgs,sus,shs
       real, dimension(:,:), allocatable :: tsk,znt,rznt,zntmp,ust,stau,tst,qst,z0t,z0q,thflux,qvflux,  &
                                            cd,ch,cq,u1,v1,s1,t1,xland,psfc,tlh,f2d,psmth,prate,pratecv, &
-                                           srate,sratecv,ustt,ut,vt,st,cm0
+                                           srate,ustt,ut,vt,st,cm0
       real, dimension(:,:), allocatable :: radbcw,radbce
       real, dimension(:,:), allocatable :: radbcs,radbcn
       real, dimension(:,:), allocatable :: dtu,dtu0,dtv,dtv0

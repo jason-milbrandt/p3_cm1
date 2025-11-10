@@ -456,7 +456,7 @@
       varunit(nvar) = 'kg/m2/s'
       varlvls(nvar) = 0
 
-      call     getavg2d(prate,icrs,savg2d,ir,rr,navg,area,ruh,rvh)
+      call     getavg2d(srate,icrs,savg2d,ir,rr,navg,area,ruh,rvh)
       call write2d(icrs,savg2d,arecs,arecw,nvar,varname,vardesc,varunit,vargrid)
     ENDIF
 
